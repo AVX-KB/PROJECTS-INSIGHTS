@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects Insights</title>
+  <link rel="stylesheet" href="stylesheet/avex-core.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="vendor/echarts-5.6.0.min.js"></script>
+</head>
+<body>
+
+<header class="avx-header">
+  <img class="avx-header-logo" src="stylesheet/images/AVEX_LOGO_WIT.png" alt="AVEX">
+  <div class="avx-header-divider"></div>
+  <div class="avx-header-text">
+    <div class="avx-header-eyebrow">AVEX PROJECTS INSIGHTS</div>
+    <div class="avx-header-title">Niet afgeronde taken per iteratie</div>
+    <div class="avx-header-subtitle" id="bord">Bord laden…</div>
+  </div>
+  <div class="avx-header-actions">
+    <div class="avx-status-line">
+      <span class="avx-dot loading" id="status-dot"></span>
+      <span id="status-tekst">Laden…</span>
+    </div>
+    <button type="button" class="avx-header-btn" id="bijwerken">↻ Nu bijwerken</button>
+  </div>
+</header>
+
+<main class="avx-container">
+  <div id="melding"></div>
+
+  <div class="avx-panel">
+    <div class="avx-pill-group" id="kerngetallen"></div>
+  </div>
+
+  <section class="avx-section">
+    <div class="avx-section-head">
+      <span class="avx-section-dot orange"></span>
+      <h2>Niet afgerond per iteratie</h2>
+      <span class="avx-section-count" id="aantal-iteraties">0</span>
+    </div>
+    <div class="avx-section-body">
+      <div id="grafiek" class="pi-grafiek" role="img"
+           aria-label="Gestapelde staafgrafiek: niet afgeronde taken per afgelopen iteratie"></div>
+      <p class="pi-toelichting">
+        Klik op een staaf om de taken te zien. Lichter gekleurde staven zijn
+        <b>onvolledig</b>: die iteratie eindigde voordat de eerste momentopname
+        er was, dus alleen wat er nu nog op staat telt mee.
+      </p>
+    </div>
+  </section>
+
+  <section class="avx-section">
+    <div class="avx-section-head">
+      <span class="avx-section-dot gray"></span>
+      <h2 id="taken-titel">Taken</h2>
+      <span class="avx-section-count" id="aantal-taken">0</span>
+    </div>
+    <div class="avx-section-body pi-tabel-wrap" id="taken"></div>
+  </section>
+
+  <section class="avx-section">
+    <div class="avx-section-head">
+      <span class="avx-section-dot blue"></span>
+      <h2>Hoe wordt dit geteld</h2>
+    </div>
+    <div class="avx-section-body pi-uitleg">
+      <p>Het bord wordt elke dag vastgelegd om <span id="tijden">06:00, 12:00 en 18:00</span>. GitHub onthoudt zelf niet op welke
+        iteratie een taak eerder stond; deze momentopnamen zijn daarom de enige bron.</p>
+      <p>Per afgelopen iteratie telt de <b>eindstand</b>: de laatste momentopname binnen
+        de iteratie. Alles wat dan op die iteratie stond en niet <span id="afgerond-statussen">Done</span>
+        was, telt als niet afgerond, ingedeeld naar wat er daarna mee gebeurde:</p>
+      <div class="avx-pill-group pi-legenda" id="legenda"></div>
+      <p>De lijn is het aandeel niet afgerond van alles wat in de eindstand op de
+        iteratie stond.</p>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

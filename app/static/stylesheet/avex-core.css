@@ -1,0 +1,806 @@
+/* ═══════════════════════════════════════════════════════════
+   AVEX OTA — Core Stylesheet
+   Versie 1.0 · Mei 2026
+   ═══════════════════════════════════════════════════════════
+   Gedeelde design-tokens en component-stijlen voor alle
+   AVEX OTA-projecten. Refereer deze stylesheet in elk
+   nieuw project zodat de huisstijl consistent blijft.
+
+   Gebruik:
+     <link rel="stylesheet" href="avex-core.css">
+
+   Overschrijf per project alleen wat afwijkt via een eigen
+   project-specifieke stylesheet of <style> blok ná deze link.
+   ═══════════════════════════════════════════════════════════ */
+
+
+/* ──────────────────────────────────────────────────────────
+   1. DESIGN TOKENS (CSS Custom Properties)
+   ────────────────────────────────────────────────────────── */
+:root {
+  /* ── Achtergronden & oppervlakken ── */
+  --avx-bg:              #eef2f6;
+  --avx-surface:         #ffffff;
+  --avx-surface-2:       #f3f5f8;
+
+  /* ── Randen ── */
+  --avx-border:          #e1e6ec;
+  --avx-border-strong:   #d2d9e1;
+
+  /* ── Tekst ── */
+  --avx-text:            #0f1b2d;
+  --avx-text-dim:        #5b6b7d;
+  --avx-text-muted:      #8b97a6;
+
+  /* ── Header gradient ── */
+  --avx-header-from:     #0a1628;
+  --avx-header-to:       #1e3a5f;
+
+  /* ── Accent (primaire merkkleur) ── */
+  --avx-accent:          #1e3a5f;
+  --avx-accent-light:    #2d5a87;
+  --avx-accent-bg:       #e8eef4;
+  --avx-accent-text:     #7eb8ff;
+
+  /* ── Semantische kleuren ── */
+  --avx-green:           #22a06b;
+  --avx-green-soft:      #dcf1e6;
+  --avx-green-text:      #145c3d;
+
+  --avx-amber:           #c98411;
+  --avx-amber-soft:      #fdecc8;
+  --avx-amber-text:      #7a4f08;
+
+  --avx-orange:          #d6661f;
+  --avx-orange-soft:     #fde3d0;
+  --avx-orange-text:     #7a3b13;
+
+  --avx-red:             #c0362c;
+  --avx-red-soft:        #f8dcd8;
+  --avx-red-text:        #7a1e18;
+
+  --avx-blue:            #1d5a8a;
+  --avx-blue-soft:       #d9e7f2;
+  --avx-blue-text:       #103b5c;
+
+  --avx-teal:            #0d8a80;
+  --avx-teal-soft:       #cff1ed;
+  --avx-teal-text:       #0b4a45;
+
+  --avx-gray:            #7d8a99;
+  --avx-gray-soft:       #e5e9ef;
+  --avx-gray-dark:       #4a5563;
+
+  /* ── Typografie ── */
+  --avx-font:            -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --avx-font-mono:       "Consolas", "Fira Code", monospace;
+
+  /* ── Afmetingen ── */
+  --avx-radius:          10px;
+  --avx-radius-sm:       6px;
+  --avx-radius-pill:     999px;
+  --avx-container-max:   1240px;
+  --avx-shadow:          0 1px 4px rgba(15, 27, 45, 0.06);
+  --avx-shadow-lg:       0 2px 20px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   2. RESET & BASIS
+   ────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--avx-bg);
+  color: var(--avx-text);
+  font-family: var(--avx-font);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   3. LAYOUT
+   ────────────────────────────────────────────────────────── */
+.avx-container {
+  max-width: var(--avx-container-max);
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   4. HEADER
+   ────────────────────────────────────────────────────────── */
+.avx-header {
+  background: linear-gradient(135deg, var(--avx-header-from) 0%, var(--avx-header-to) 60%, var(--avx-accent-light) 100%);
+  color: #fff;
+  padding: 18px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avx-header-logo {
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.avx-header-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.avx-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.avx-header-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  opacity: 0.6;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.avx-header-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.avx-header-subtitle {
+  font-size: 13px;
+  opacity: 0.7;
+  margin-top: 3px;
+}
+
+.avx-header-subtitle b,
+.avx-header-subtitle strong {
+  opacity: 1;
+  color: var(--avx-accent-text);
+}
+
+.avx-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   5. STATUS INDICATOR (header rechts)
+   ────────────────────────────────────────────────────────── */
+.avx-status-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 6px 12px;
+  border-radius: var(--avx-radius-pill);
+  backdrop-filter: blur(2px);
+  color: #fff;
+}
+
+.avx-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+.avx-dot.err      { background: #fca5a5; }
+.avx-dot.loading  { background: #fcd34d; animation: avx-pulse 1s infinite; }
+@keyframes avx-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   6. HEADER BUTTON (bijv. "Advanced", "Debug")
+   ────────────────────────────────────────────────────────── */
+.avx-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 6px 14px;
+  border-radius: var(--avx-radius-pill);
+  font-family: var(--avx-font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.avx-header-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+.avx-header-btn[aria-pressed="true"],
+.avx-header-btn.active {
+  background: #fff;
+  color: var(--avx-accent);
+  border-color: #fff;
+  font-weight: 600;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   7. PANEL (witte kaart, bijv. filter-paneel / KPI-blok)
+   ────────────────────────────────────────────────────────── */
+.avx-panel {
+  background: var(--avx-surface);
+  border: 1px solid var(--avx-border);
+  border-radius: var(--avx-radius);
+  padding: 18px 22px;
+  margin-bottom: 18px;
+  box-shadow: var(--avx-shadow);
+}
+
+.avx-panel-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 14px 18px;
+  align-items: center;
+}
+.avx-panel-row + .avx-panel-row {
+  margin-top: 10px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   8. LABEL (filterlabel, panellabel)
+   ────────────────────────────────────────────────────────── */
+.avx-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--avx-text-muted);
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   9. PILLS
+   Ronde badges met optioneel een telling.
+   Kleur-varianten: .green .amber .orange .red .blue .teal .gray .slate
+   ────────────────────────────────────────────────────────── */
+.avx-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.avx-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--avx-surface-2);
+  border: 1px solid var(--avx-border);
+  color: var(--avx-text);
+  padding: 6px 12px;
+  border-radius: var(--avx-radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--avx-font);
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.15s;
+}
+.avx-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(15, 27, 45, 0.08);
+}
+.avx-pill:focus-visible {
+  outline: 2px solid var(--avx-accent);
+  outline-offset: 2px;
+}
+.avx-pill.non-interactive {
+  cursor: default;
+}
+.avx-pill.non-interactive:hover {
+  transform: none;
+  box-shadow: none;
+}
+.avx-pill .num {
+  color: var(--avx-text-muted);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+/* Kleur-varianten */
+.avx-pill.green  { background: var(--avx-green-soft);  border-color: var(--avx-green);        color: var(--avx-green-text); }
+.avx-pill.amber  { background: var(--avx-amber-soft);  border-color: var(--avx-amber);        color: var(--avx-amber-text); }
+.avx-pill.orange { background: var(--avx-orange-soft); border-color: var(--avx-orange);       color: var(--avx-orange-text); }
+.avx-pill.red    { background: var(--avx-red-soft);    border-color: var(--avx-red);          color: var(--avx-red-text); }
+.avx-pill.blue   { background: var(--avx-blue-soft);   border-color: var(--avx-blue);         color: var(--avx-blue-text); }
+.avx-pill.teal   { background: var(--avx-teal-soft);   border-color: var(--avx-teal);         color: var(--avx-teal-text); }
+.avx-pill.gray   { background: var(--avx-gray-soft);   border-color: var(--avx-border-strong); color: var(--avx-text-dim); }
+.avx-pill.slate  { background: #dde3ea;                border-color: var(--avx-gray-dark);    color: var(--avx-gray-dark); }
+
+/* Actieve / geselecteerde staat */
+.avx-pill[aria-pressed="true"],
+.avx-pill.active {
+  box-shadow: 0 0 0 2px var(--avx-accent) inset, 0 2px 4px rgba(15, 27, 45, 0.1);
+  font-weight: 700;
+}
+.avx-pill.green[aria-pressed="true"],  .avx-pill.green.active  { box-shadow: 0 0 0 2px var(--avx-green) inset; }
+.avx-pill.amber[aria-pressed="true"],  .avx-pill.amber.active  { box-shadow: 0 0 0 2px var(--avx-amber) inset; }
+.avx-pill.orange[aria-pressed="true"], .avx-pill.orange.active { box-shadow: 0 0 0 2px var(--avx-orange) inset; }
+.avx-pill.red[aria-pressed="true"],    .avx-pill.red.active    { box-shadow: 0 0 0 2px var(--avx-red) inset; }
+.avx-pill.blue[aria-pressed="true"],   .avx-pill.blue.active   { box-shadow: 0 0 0 2px var(--avx-blue) inset; }
+.avx-pill.teal[aria-pressed="true"],   .avx-pill.teal.active   { box-shadow: 0 0 0 2px var(--avx-teal) inset; }
+.avx-pill.gray[aria-pressed="true"],   .avx-pill.gray.active   { box-shadow: 0 0 0 2px var(--avx-gray) inset; }
+.avx-pill.slate[aria-pressed="true"],  .avx-pill.slate.active  { box-shadow: 0 0 0 2px var(--avx-gray-dark) inset; }
+
+
+/* ──────────────────────────────────────────────────────────
+   10. BUTTONS
+   Massieve knoppen voor filters, acties, etc.
+   ────────────────────────────────────────────────────────── */
+.avx-btn {
+  padding: 7px 14px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.12s;
+  background: var(--avx-accent-bg);
+  color: var(--avx-accent);
+  font-family: var(--avx-font);
+}
+.avx-btn:hover {
+  background: #d0dcea;
+}
+.avx-btn.active {
+  background: var(--avx-accent);
+  color: #fff;
+  border-color: var(--avx-accent);
+}
+.avx-btn.dead {
+  opacity: 0.35;
+  cursor: default;
+  background: #f0f0f0;
+  color: #aaa;
+}
+.avx-btn .ct {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 3px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   11. SECTION (groep met header, bijv. "Aan het laden")
+   ────────────────────────────────────────────────────────── */
+.avx-section {
+  background: var(--avx-surface);
+  border: 1px solid var(--avx-border);
+  border-radius: var(--avx-radius);
+  margin-bottom: 16px;
+  box-shadow: var(--avx-shadow);
+  overflow: hidden;
+}
+.avx-section.hidden { display: none; }
+
+.avx-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--avx-border);
+  background: var(--avx-surface-2);
+}
+
+.avx-section-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--avx-gray);
+  flex-shrink: 0;
+}
+/* Kleur toekennen via parent-class */
+.avx-section-dot.green  { background: var(--avx-green); }
+.avx-section-dot.amber  { background: var(--avx-amber); }
+.avx-section-dot.orange { background: var(--avx-orange); }
+.avx-section-dot.red    { background: var(--avx-red); }
+.avx-section-dot.blue   { background: var(--avx-blue); }
+.avx-section-dot.gray   { background: var(--avx-gray); }
+.avx-section-dot.dark   { background: var(--avx-gray-dark); }
+
+.avx-section-head h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--avx-text);
+}
+
+.avx-section-count {
+  background: #fff;
+  border: 1px solid var(--avx-border);
+  color: var(--avx-text-dim);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: var(--avx-radius-pill);
+}
+
+.avx-section-body {
+  padding: 14px 20px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   12. DATA ROWS (rij met accent-balk links)
+   ────────────────────────────────────────────────────────── */
+.avx-row {
+  display: grid;
+  grid-template-columns: 4px 1fr;
+  gap: 0 14px;
+  padding: 12px 8px 12px 0;
+  border-top: 1px solid var(--avx-border);
+  align-items: center;
+}
+.avx-row:first-child { border-top: none; }
+
+.avx-row-accent {
+  align-self: stretch;
+  border-radius: 4px;
+  background: var(--avx-gray);
+}
+/* Kleur via extra class op .avx-row-accent */
+.avx-row-accent.green  { background: var(--avx-green); }
+.avx-row-accent.amber  { background: var(--avx-amber); }
+.avx-row-accent.orange { background: var(--avx-orange); }
+.avx-row-accent.red    { background: var(--avx-red); }
+.avx-row-accent.blue   { background: var(--avx-blue); }
+.avx-row-accent.dark   { background: var(--avx-gray-dark); }
+
+.avx-row-main { min-width: 0; }
+
+.avx-row-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--avx-text);
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.avx-row-subtitle {
+  font-size: 13px;
+  color: var(--avx-text-dim);
+  margin-bottom: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.avx-row-subtitle .user { color: var(--avx-text); font-weight: 600; }
+.avx-row-subtitle .sep  { color: var(--avx-border-strong); }
+
+
+/* ──────────────────────────────────────────────────────────
+   13. TAGS (inline metadata badges)
+   ────────────────────────────────────────────────────────── */
+.avx-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.avx-tag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--avx-border);
+  color: var(--avx-text);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 9px;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.avx-tag .k {
+  color: var(--avx-text-muted);
+  font-weight: 500;
+  font-size: 11px;
+}
+.avx-tag .v {
+  color: var(--avx-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tag-varianten */
+.avx-tag.accent {
+  background: var(--avx-blue-soft);
+  border-color: #bcd5e8;
+}
+.avx-tag.accent .v { color: var(--avx-blue-text); }
+
+.avx-tag.warn {
+  background: var(--avx-orange-soft);
+  border-color: #f0c59f;
+  color: var(--avx-orange-text);
+  font-weight: 600;
+}
+.avx-tag.warn .k { color: #9a5020; }
+.avx-tag.warn .v { color: #5c2a0d; }
+
+.avx-tag.success {
+  background: var(--avx-green-soft);
+  border-color: var(--avx-green);
+  color: var(--avx-green-text);
+}
+
+.avx-tag.muted {
+  border-color: transparent;
+  background: transparent;
+  padding: 2px 2px;
+  font-size: 11px;
+  color: var(--avx-text-muted);
+}
+.avx-tag.muted .k,
+.avx-tag.muted .v {
+  color: var(--avx-text-muted);
+  font-weight: 500;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   14. CARDS (uitklapbare items, bijv. BRIX solutions)
+   ────────────────────────────────────────────────────────── */
+.avx-card {
+  border: 1px solid var(--avx-border);
+  border-radius: var(--avx-radius);
+  overflow: hidden;
+  transition: border-color 0.12s;
+  background: var(--avx-surface);
+}
+.avx-card:hover { border-color: #b0c4de; }
+.avx-card.open  { border: 2px solid var(--avx-accent); }
+
+.avx-card-head {
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 54px;
+  cursor: pointer;
+}
+
+.avx-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--avx-accent);
+}
+
+.avx-card-tags {
+  font-size: 11px;
+  color: var(--avx-text-muted);
+  margin-top: 3px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.avx-card-tags span {
+  background: var(--avx-surface-2);
+  padding: 1px 7px;
+  border-radius: 4px;
+}
+
+.avx-card-body {
+  display: none;
+  border-top: 1px solid var(--avx-border);
+  padding: 0;
+  background: #fafbfc;
+}
+.avx-card.open .avx-card-body { display: block; }
+
+
+/* ──────────────────────────────────────────────────────────
+   15. TABLE (item-tabel in cards)
+   ────────────────────────────────────────────────────────── */
+.avx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.avx-table thead {
+  background: var(--avx-accent-bg);
+  position: sticky;
+  top: 0;
+}
+.avx-table th {
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #5a6a7a;
+  border-bottom: 2px solid #d0dcea;
+}
+.avx-table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--avx-border);
+  color: #333;
+}
+.avx-table tr:last-child td { border-bottom: none; }
+.avx-table tr:hover td { background: #eef3f8; }
+
+
+/* ──────────────────────────────────────────────────────────
+   16. PRODUCT SELECTOR CARDS (bijv. BRIX / BRIX Zero)
+   ────────────────────────────────────────────────────────── */
+.avx-product-selector {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.avx-product-card {
+  flex: 1;
+  min-width: 200px;
+  border: 2px solid var(--avx-border);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--avx-surface);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+.avx-product-card:hover {
+  border-color: #aac;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+.avx-product-card.active {
+  border-color: var(--avx-accent);
+  box-shadow: 0 2px 16px rgba(30, 58, 95, 0.2);
+}
+
+.avx-product-badge {
+  background: var(--avx-accent-bg);
+  color: var(--avx-accent);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.avx-product-card.active .avx-product-badge {
+  background: var(--avx-accent);
+  color: #fff;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   17. ERROR BANNER
+   ────────────────────────────────────────────────────────── */
+.avx-error {
+  background: var(--avx-red-soft);
+  border: 1px solid var(--avx-red);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--avx-red-text);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   18. SPINNER / LOADING
+   ────────────────────────────────────────────────────────── */
+.avx-spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 3px solid #ddd;
+  border-top-color: var(--avx-accent);
+  border-radius: 50%;
+  animation: avx-spin 0.6s linear infinite;
+}
+@keyframes avx-spin { to { transform: rotate(360deg); } }
+
+.avx-loading {
+  text-align: center;
+  padding: 50px;
+  color: var(--avx-text-muted);
+  font-size: 14px;
+}
+
+.avx-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--avx-text-muted);
+  font-style: italic;
+  font-size: 13px;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   19. COMPARE BAR (vast onderaan, bijv. BRIX vergelijking)
+   ────────────────────────────────────────────────────────── */
+.avx-compare-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--avx-accent);
+  color: #fff;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 50;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+}
+.avx-compare-bar.show { transform: translateY(0); }
+
+
+/* ──────────────────────────────────────────────────────────
+   20. UTILITY CLASSES
+   ────────────────────────────────────────────────────────── */
+.avx-text-muted  { color: var(--avx-text-muted); }
+.avx-text-dim    { color: var(--avx-text-dim); }
+.avx-text-accent { color: var(--avx-accent); }
+.avx-fw-700      { font-weight: 700; }
+.avx-uppercase   { text-transform: uppercase; letter-spacing: 0.08em; }
+.avx-mt-sm       { margin-top: 8px; }
+.avx-mt          { margin-top: 16px; }
+.avx-mb          { margin-bottom: 16px; }
+.avx-gap-sm      { gap: 6px; }
+.avx-gap         { gap: 10px; }
+.avx-flex        { display: flex; }
+.avx-flex-wrap   { flex-wrap: wrap; }
+.avx-items-center { align-items: center; }
+
+
+/* ──────────────────────────────────────────────────────────
+   21. RESPONSIVE
+   ────────────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  .avx-header {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .avx-header-title { font-size: 20px; }
+  .avx-panel-row { grid-template-columns: 1fr; gap: 6px; }
+  .avx-product-selector { flex-direction: column; }
+  .avx-product-card { min-width: 0; }
+  .avx-row { grid-template-columns: 1fr; }
+}

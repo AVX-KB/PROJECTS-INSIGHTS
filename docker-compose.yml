@@ -1,0 +1,51 @@
+# Projects Insights (AVX-AI-PROJECTS-INSIGHTS)
+# ============================================
+# Grafieken over een GitHub Project-bord. Zet elke dag een momentopname van het
+# bord in de eigen database op AVX-AI-DB en toont daar de vragen uit.
+#
+# Starten:   docker compose up -d --build
+# Logs:      docker compose logs -f
+# Stoppen:   docker compose down
+# Na een wijziging in .env:  docker compose up -d --force-recreate
+#
+# Instellingen en secrets staan in .env naast dit bestand (zie .env.example).
+# Wiki: /solutions/projects-insights/overzicht
+
+name: avx-ai-projects-insights
+
+services:
+  app:
+    build:
+      context: ./app
+    container_name: AVX-AI-PROJECTS-INSIGHTS
+    hostname: avx-ai-projects-insights
+    restart: unless-stopped
+    init: true        # geeft het stopsignaal door aan Python
+    environment:
+      POORT: 8080
+      # Database: binnen Docker de containernaam en de interne poort.
+      DB_HOST: avx-ai-db
+      DB_POORT: 5432
+      DB_NAAM: AVX-AI-DB-PROJECTS-INSIGHTS
+      DB_GEBRUIKER: svc_projects_insights
+      DB_WACHTWOORD: ${DB_WACHTWOORD}
+      # Het bord
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_ORG: ${GITHUB_ORG}
+      GITHUB_PROJECT: ${GITHUB_PROJECT}
+      SPRINT_VELD: ${SPRINT_VELD:-WEEK}
+      STATUS_VELD: ${STATUS_VELD:-Status}
+      AFGEROND_STATUSSEN: ${AFGEROND_STATUSSEN:-Done}
+      SNAPSHOT_TIJDEN: ${SNAPSHOT_TIJDEN:-06:00,12:00,18:00}
+      TIJDZONE: Europe/Amsterdam
+      TZ: Europe/Amsterdam
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "4002:8080"   # vastgelegd op /infra/naamgeving-en-poorten
+    networks:
+      - avx-ai-net
+
+networks:
+  avx-ai-net:
+    external: true
+    name: avx-ai-net

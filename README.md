@@ -1,0 +1,40 @@
+# Projects Insights
+
+Grafieken over een GitHub Project-bord: vragen die GitHub zelf niet beantwoordt. De eerste vraag is **hoeveel taken er per iteratie (veld `WEEK` op het bord) niet worden afgerond**, en wat er daarna mee gebeurt: doorgeschoven, blijven staan, na afloop afgerond of uit de iteratie gehaald.
+
+GitHub bewaart niet op welke iteratie een taak eerder stond. Daarom zet deze app drie keer per dag een momentopname van het bord in een eigen database. Die momentopnamen zijn de geschiedenis.
+
+**Documentatie staat in de wiki:** [Projects Insights](http://wiki.ai-dev.cops.ota/solutions/projects-insights/overzicht). Daar staan de architectuur, het beheer en de handleiding.
+
+## Lokaal starten
+
+Vereist: de database `AVX-AI-DB-PROJECTS-INSIGHTS` met gebruiker `svc_projects_insights` op `AVX-AI-DB`, en het netwerk `avx-ai-net`.
+
+```bash
+cp .env.example .env          # en vul de waarden uit KeePass in
+docker compose up -d --build
+```
+
+De pagina staat daarna op poort 4002.
+
+## Onderdelen
+
+| Bestand | Wat het doet |
+|---|---|
+| `app/github.py` | het bord uitlezen via de GraphQL-API van GitHub |
+| `app/opslag.py` | momentopnamen in Postgres (tabellen `pi_*`) |
+| `app/analyse.py` | de vraag: niet afgerond per iteratie |
+| `app/app.py` | webserver, API en de dagelijkse planner |
+| `app/static/` | de pagina, met `avex-core.css` en Apache ECharts 5.6.0 |
+
+`app/static/vendor/echarts-5.6.0.min.js` is Apache ECharts (Apache-2.0), ongewijzigd overgenomen van cdnjs. SHA-512: `XSmbX3mhrD2ix5fXPTRQb2FwK22sRMVQTpBP2ac8hX7Dh/605hA2QDegVWiAvZPiXIxOV0CbkmUjGionDpbCmw==`.
+
+## Changelog
+
+### v1.0.0 — 24 november 2026
+
+**Start**
+- Momentopname van bord `AVEXInternational/projects/13` op de tijdstippen uit `SNAPSHOT_TIJDEN` (standaard 06:00, 12:00 en 18:00), plus een knop **Nu bijwerken**. Een gemist tijdstip, ook van de vorige dag, wordt bij de volgende start ingehaald. Zijn er nog geen momentopnamen, dan wordt de eerste direct bij het opstarten gemaakt.
+- Vraag **Niet afgerond per iteratie**: een gestapelde staafgrafiek per afgelopen iteratie, met een lijn voor het aandeel van wat gepland stond. Klik op een iteratie voor de lijst met taken.
+- Kerngetallen: gemiddeld niet afgerond over de laatste zes volledige iteraties, de laatste iteratie, en de stand van de lopende iteratie.
+- Iteraties die eindigden vóór de eerste momentopname zijn als **onvolledig** gemarkeerd.

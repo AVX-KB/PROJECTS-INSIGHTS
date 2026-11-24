@@ -1,0 +1,66 @@
+/* Projects Insights — alleen wat afwijkt van avex-core.css */
+
+.pi-grafiek {
+  width: 100%;
+  height: 440px;
+}
+
+.pi-toelichting {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--avx-text-dim);
+}
+
+.pi-uitleg p + p,
+.pi-uitleg p + .pi-legenda,
+.pi-uitleg .pi-legenda + p {
+  margin-top: 10px;
+}
+.pi-uitleg p {
+  color: var(--avx-text-dim);
+  max-width: 80ch;
+}
+
+.pi-tabel-wrap {
+  overflow-x: auto;
+}
+.pi-tabel-wrap .avx-table a {
+  color: var(--avx-accent-light);
+  text-decoration: none;
+  font-weight: 600;
+}
+.pi-tabel-wrap .avx-table a:hover {
+  text-decoration: underline;
+}
+.pi-tabel-wrap .avx-table td {
+  vertical-align: top;
+}
+.pi-nowrap {
+  white-space: nowrap;
+}
+
+/* Kleine, niet-klikbare pill als label in de tabel en de legenda */
+.pi-label.avx-pill {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+#melding:not(:empty) {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 720px) {
+  .avx-header {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+  .avx-header-divider {
+    display: none;
+  }
+  .avx-header-actions {
+    margin-left: 0;
+  }
+  .pi-grafiek {
+    height: 360px;
+  }
+}
