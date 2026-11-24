@@ -44,6 +44,7 @@ let iteraties = [];
 async function haal(url, opties) {
   const antwoord = await fetch(url, opties);
   const data = await antwoord.json().catch(() => ({}));
+  if (antwoord.status === 401) { location.href = 'login'; throw new Error('Niet ingelogd.'); }
   if (!antwoord.ok) throw new Error(data.fout || `Fout ${antwoord.status}`);
   return data;
 }

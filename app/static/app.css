@@ -49,7 +49,7 @@
   margin-bottom: 16px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 900px) {
   .avx-header {
     flex-wrap: wrap;
     padding: 14px 16px;
@@ -59,8 +59,74 @@
   }
   .avx-header-actions {
     margin-left: 0;
+    flex-basis: 100%;   /* knoppen op een eigen regel, de titel houdt zijn breedte */
+    flex-wrap: wrap;
   }
   .pi-grafiek {
     height: 360px;
   }
 }
+
+/* ── Inlogscherm, naar het voorbeeld van BRIX Explorer ── */
+.pi-login-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--avx-header-from) 0%, var(--avx-header-to) 60%, var(--avx-accent-light) 100%);
+}
+.pi-login-kaart {
+  width: 380px;
+  max-width: 100%;
+  background: var(--avx-surface);
+  border: 1px solid var(--avx-border);
+  border-radius: var(--avx-radius);
+  box-shadow: var(--avx-shadow-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.pi-login-logo {
+  height: 44px;
+}
+.pi-login-kop { display: flex; flex-direction: column; gap: 4px; }
+.pi-login-titel { font-size: 19px; font-weight: 800; color: var(--avx-text); }
+.pi-login-sub { font-size: 12px; color: var(--avx-text-muted); }
+.pi-login-veld { display: flex; flex-direction: column; gap: 6px; }
+.pi-login-veld span {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--avx-text-muted);
+}
+.pi-login-veld input {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 10px 12px;
+  color: var(--avx-text);
+  background: var(--avx-surface-2);
+  border: 1px solid var(--avx-border);
+  border-radius: var(--avx-radius-sm);
+  outline: none;
+}
+.pi-login-veld input:focus { border-color: var(--avx-accent); }
+.pi-login-knop {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 11px;
+  border-radius: var(--avx-radius-sm);
+  cursor: pointer;
+  background: var(--avx-accent);
+  color: var(--avx-surface);
+  border: 1px solid var(--avx-accent);
+}
+.pi-login-knop:hover { background: var(--avx-accent-light); }
+.pi-login-fout { font-size: 13px; color: var(--avx-red-text); min-height: 18px; }
+
+.pi-afmelden { display: inline; }

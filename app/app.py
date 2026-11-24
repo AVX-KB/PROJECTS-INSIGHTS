@@ -3,9 +3,10 @@ Projects Insights - webserver
 =============================
 Eén container doet twee dingen:
 
-  1. elke dag een momentopname van het GitHub-bord in Postgres zetten
+  1. een paar keer per dag een momentopname van het GitHub-bord in Postgres zetten
      (een achtergrondthread, op de tijdstippen uit SNAPSHOT_TIJDEN in TIJDZONE)
-  2. de pagina en de API uitserveren waar de grafieken uit lezen
+  2. de pagina en de API uitserveren waar de grafieken uit lezen,
+     achter één gedeeld wachtwoord (toegang.py)
 
 Elke vraag aan het bord is een eigen endpoint onder /api/vragen/. Een nieuwe
 vraag is dus een functie in analyse.py plus een endpoint hier, en een blok in
@@ -24,6 +25,7 @@ from waitress import serve
 import analyse
 import github
 import opslag
+import toegang
 
 HIER = os.path.dirname(os.path.abspath(__file__))
 
@@ -47,6 +49,7 @@ log = logging.getLogger('projects-insights')
 
 app = Flask(__name__, static_folder=os.path.join(HIER, 'static'), static_url_path='')
 app.json.sort_keys = False
+toegang.bewaak(app)
 
 _slot = threading.Lock()
 _toestand = {'laatste_poging': 0.0, 'laatste_fout': None, 'laatste_fout_op': None}
@@ -184,4 +187,6 @@ def vraag_niet_afgerond():
 if __name__ == '__main__':
     threading.Thread(target=planner, name='planner', daemon=True).start()
     log.info('Projects Insights luistert op poort %d (bord %s/projects/%s)', POORT, GITHUB_ORG, GITHUB_PROJECT)
+    if not toegang.is_ingesteld():
+        log.warning('Geen TOEGANGSWACHTWOORD in de .env: de pagina blijft op slot.')
     serve(app, host='0.0.0.0', port=POORT)

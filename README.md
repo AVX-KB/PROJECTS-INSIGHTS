@@ -24,12 +24,20 @@ De pagina staat daarna op poort 4002.
 | `app/github.py` | het bord uitlezen via de GraphQL-API van GitHub |
 | `app/opslag.py` | momentopnamen in Postgres (tabellen `pi_*`) |
 | `app/analyse.py` | de vraag: niet afgerond per iteratie |
-| `app/app.py` | webserver, API en de dagelijkse planner |
+| `app/app.py` | webserver, API en de planner |
+| `app/toegang.py` | het gedeelde wachtwoord en de sessie |
 | `app/static/` | de pagina, met `avex-core.css` en Apache ECharts 5.6.0 |
 
 `app/static/vendor/echarts-5.6.0.min.js` is Apache ECharts (Apache-2.0), ongewijzigd overgenomen van cdnjs. SHA-512: `XSmbX3mhrD2ix5fXPTRQb2FwK22sRMVQTpBP2ac8hX7Dh/605hA2QDegVWiAvZPiXIxOV0CbkmUjGionDpbCmw==`.
 
 ## Changelog
+
+### v1.0.1 — 24 november 2026
+
+**Wachtwoord en proxy**
+- De pagina zit achter één gedeeld wachtwoord uit `TOEGANGSWACHTWOORD` (KeePass). Zonder wachtwoord in de `.env` gaat alles op slot. Na inloggen blijf je 30 dagen ingelogd; rechtsboven staat **Afmelden**.
+- De container hangt nu ook in `proxy-net`, voor `insights.ai-dev.cops.ota`. Poort 4002 blijft tot die naam werkt.
+- Op een smal scherm staan de knoppen in de header op een eigen regel.
 
 ### v1.0.0 — 24 november 2026
 

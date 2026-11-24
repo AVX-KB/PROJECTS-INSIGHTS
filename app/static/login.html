@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects Insights — inloggen</title>
+  <link rel="stylesheet" href="stylesheet/avex-core.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="pi-login-pagina">
+
+<img class="pi-login-logo" src="stylesheet/images/AVEX_LOGO_WIT.png" alt="AVEX">
+
+<form class="pi-login-kaart" method="post" action="login">
+  <div class="pi-login-kop">
+    <div class="pi-login-titel">Projects Insights</div>
+    <div class="pi-login-sub">Interne tool · voer het wachtwoord in</div>
+  </div>
+
+  <label class="pi-login-veld">
+    <span>Wachtwoord</span>
+    <input type="password" name="wachtwoord" autocomplete="current-password" required autofocus>
+  </label>
+
+  <div class="pi-login-fout" id="fout" role="alert"></div>
+  <button class="pi-login-knop" type="submit">Inloggen</button>
+</form>
+
+<script>
+  const meldingen = {
+    'onjuist': 'Dat wachtwoord klopt niet.',
+    'niet-ingesteld': 'Er is nog geen wachtwoord ingesteld. Meld dit bij de eigenaar.',
+  };
+  const fout = new URLSearchParams(location.search).get('fout');
+  if (fout) document.getElementById('fout').textContent = meldingen[fout] || 'Inloggen mislukt.';
+</script>
+</body>
+</html>

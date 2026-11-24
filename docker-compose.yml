@@ -29,6 +29,8 @@ services:
       DB_NAAM: AVX-AI-DB-PROJECTS-INSIGHTS
       DB_GEBRUIKER: svc_projects_insights
       DB_WACHTWOORD: ${DB_WACHTWOORD}
+      # Eén gedeeld wachtwoord voor de pagina
+      TOEGANGSWACHTWOORD: ${TOEGANGSWACHTWOORD}
       # Het bord
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       GITHUB_ORG: ${GITHUB_ORG}
@@ -40,12 +42,18 @@ services:
       TIJDZONE: Europe/Amsterdam
       TZ: Europe/Amsterdam
       PYTHONUNBUFFERED: 1
+    # Terugvaloptie tot insights.ai-dev.cops.ota werkt; daarna weg
+    # (runbook "dienst achter de proxy zetten", stap 6).
     ports:
       - "4002:8080"   # vastgelegd op /infra/naamgeving-en-poorten
     networks:
-      - avx-ai-net
+      - avx-ai-net    # naar de database
+      - proxy-net     # bereikbaar voor de proxy: insights.ai-dev.cops.ota -> AVX-AI-PROJECTS-INSIGHTS:8080
 
 networks:
   avx-ai-net:
     external: true
     name: avx-ai-net
+  proxy-net:
+    external: true
+    name: proxy-net
