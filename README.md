@@ -34,6 +34,12 @@ De pagina staat daarna op poort 4002.
 
 ## Changelog
 
+### v1.0.4 — 24 november 2026
+
+**Parent issue**
+- Een taak is vaak een sub-issue. Het weekrapport (niet afgerond, nog open, afgerond) en de langlopers hebben daarom een kolom **Parent issue**: nummer en titel, met een link naar GitHub. Lange titels worden afgekapt; de volledige titel staat in de tooltip.
+- `pi_item_stand` heeft de kolommen `ouder_nummer`, `ouder_titel` en `ouder_url`; ze worden bij het opstarten vanzelf toegevoegd. Voor oudere momentopnamen zonder parent geldt de parent van nu.
+
 ### v1.0.3 — 24 november 2026
 
 **Weekrapport, langlopers en prioriteit**

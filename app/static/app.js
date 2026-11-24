@@ -263,7 +263,7 @@ function toonLanglopers() {
     if (nieuw !== groep) {
       groep = nieuw;
       const aantal = alle.filter(x => x.ooit_gepland === t.ooit_gepland).length;
-      rijen.push(`<tr class="pi-groep"><td colspan="7">${t.ooit_gepland
+      rijen.push(`<tr class="pi-groep"><td colspan="8">${t.ooit_gepland
         ? 'Stond gepland en is nog niet af' : 'Alleen op de backlog'} <span class="avx-text-muted">(${aantal})</span></td></tr>`);
     }
     const nuOp = t.iteratie_nu
@@ -276,6 +276,7 @@ function toonLanglopers() {
     rijen.push(`<tr>
       <td class="pi-nowrap">${taakLink(t)}</td>
       <td>${esc(t.titel)}</td>
+      <td>${ouderLabel(t.ouder)}</td>
       <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>
       <td class="pi-nowrap">${esc(t.status || '—')}</td>
       <td class="pi-nowrap">${nuOp}</td>
@@ -287,7 +288,7 @@ function toonLanglopers() {
     ? `<button type="button" class="avx-btn avx-mt-sm" id="meer-langlopers">${alleLangloper
         ? 'Minder tonen' : `Toon alle ${alle.length}`}</button>` : '';
   $('langlopers').innerHTML =
-    tabel(['Taak', 'Titel', 'Prioriteit', 'Status', 'Staat nu op', 'Gepland in', 'Open'], rijen) + meer;
+    tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Status', 'Staat nu op', 'Gepland in', 'Open'], rijen) + meer;
   const knop = $('meer-langlopers');
   if (knop) knop.addEventListener('click', () => { alleLangloper = !alleLangloper; toonLanglopers(); });
 }

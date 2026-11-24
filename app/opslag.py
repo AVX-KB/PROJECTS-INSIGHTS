@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS pi_item_stand (
 
 CREATE INDEX IF NOT EXISTS pi_item_stand_iteratie ON pi_item_stand (iteratie_id);
 
+-- Sinds v1.0.4: het parent issue (een taak is vaak een sub-issue)
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS ouder_nummer integer;
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS ouder_titel text;
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS ouder_url text;
+
 -- Sinds v1.0.3: prioriteit en leeftijd van een taak
 ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS prioriteit text;
 ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS aangemaakt_op timestamptz;
@@ -133,12 +138,14 @@ def sla_momentopname_op(conn, bord, genomen_op=None, bron='github', toelichting=
         psycopg2.extras.execute_values(cur, """
             INSERT INTO pi_item_stand (momentopname_id, item_id, soort, nummer, titel, url,
                                        repo, staat, status, iteratie_id, gearchiveerd,
-                                       prioriteit, aangemaakt_op, op_bord_sinds)
+                                       prioriteit, aangemaakt_op, op_bord_sinds,
+                                       ouder_nummer, ouder_titel, ouder_url)
             VALUES %s
         """, [(momentopname_id, i['item_id'], i['soort'], i['nummer'], i['titel'], i['url'],
                i['repo'], i['staat'], i['status'],
                i['iteratie']['iteratie_id'] if i['iteratie'] else None, i['gearchiveerd'],
-               i.get('prioriteit'), i.get('aangemaakt_op'), i.get('op_bord_sinds'))
+               i.get('prioriteit'), i.get('aangemaakt_op'), i.get('op_bord_sinds'),
+               i.get('ouder_nummer'), i.get('ouder_titel'), i.get('ouder_url'))
               for i in bord['items']])
     conn.commit()
     return momentopname_id
@@ -241,7 +248,8 @@ def stand(conn, momentopname_id):
     with conn.cursor() as cur:
         cur.execute("""
             SELECT item_id, soort, nummer, titel, url, repo, staat, status,
-                   iteratie_id, gearchiveerd, prioriteit, aangemaakt_op, op_bord_sinds
+                   iteratie_id, gearchiveerd, prioriteit, aangemaakt_op, op_bord_sinds,
+                   ouder_nummer, ouder_titel, ouder_url
               FROM pi_item_stand WHERE momentopname_id = %s
         """, (momentopname_id,))
         return {rij['item_id']: rij for rij in cur.fetchall()}

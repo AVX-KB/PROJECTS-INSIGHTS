@@ -92,6 +92,18 @@ def _prioriteit(rij, nu):
     return (nu_rij or rij).get('prioriteit')
 
 
+def _ouder(rij, nu):
+    """Het parent issue, zoals het nu is; staat de taak niet meer op het bord, dan van toen.
+
+    Oudere momentopnamen hebben nog geen parent; daarom eerst de stand van nu.
+    """
+    nu_rij = nu.get(rij['item_id']) or {}
+    bron = nu_rij if nu_rij.get('ouder_nummer') is not None else rij
+    if bron.get('ouder_nummer') is None:
+        return None
+    return {'nummer': bron['ouder_nummer'], 'titel': bron.get('ouder_titel'), 'url': bron.get('ouder_url')}
+
+
 def _basis(it):
     return {
         'iteratie_id': it['iteratie_id'],
@@ -225,6 +237,7 @@ def _taak(rij, ctx, **extra):
         'url': rij['url'],
         'repo': rij['repo'],
         'prioriteit': _prioriteit(rij, ctx.nu),
+        'ouder': _ouder(rij, ctx.nu),
         'status': rij['status'],
         'status_nu': (nu_rij or {}).get('status'),
         'iteratie_nu': ctx.titels.get(nu_iteratie) if nu_iteratie else None,
@@ -312,6 +325,7 @@ def langlopers(conn, afgerond_statussen):
             'repo': rij['repo'],
             'status': rij['status'],
             'prioriteit': rij['prioriteit'],
+            'ouder': _ouder(rij, ctx.nu),
             'iteratie_nu': nu_it['titel'] if nu_it else None,
             'iteratie_nu_afgelopen': nu_afgelopen,
             'ooit_gepland': bool(gepland),

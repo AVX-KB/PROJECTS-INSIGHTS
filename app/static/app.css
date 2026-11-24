@@ -169,3 +169,16 @@ a.avx-header-btn { text-decoration: none; }
   text-transform: uppercase;
   color: var(--avx-red-text);
 }
+
+/* Parent issue: één regel, afgekapt; de volledige titel staat in de tooltip */
+.pi-ouder {
+  display: inline-block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  color: var(--avx-text-dim);
+}
+.pi-tabel-wrap .avx-table a.pi-ouder-link { font-weight: 400; }
+.pi-tabel-wrap .avx-table a.pi-ouder-link:hover .pi-ouder { color: var(--avx-accent-light); }

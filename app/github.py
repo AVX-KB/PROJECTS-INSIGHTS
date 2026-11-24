@@ -61,6 +61,7 @@ query($org: String!, $nummer: Int!, $sprint: String!, $status: String!, $prio: S
             __typename
             ... on Issue {
               number title url state createdAt repository { nameWithOwner }
+              parent { number title url }
               issueFieldValues(first: 20) {
                 nodes {
                   ... on IssueFieldSingleSelectValue { name field { ... on IssueFieldSingleSelect { name } } }
@@ -162,6 +163,10 @@ def _item(node, prio_veld):
         # issue-veld, dan een projectveld met dezelfde naam.
         'prioriteit': _issue_veld(inhoud, prio_veld) or prio.get('name'),
         'aangemaakt_op': inhoud.get('createdAt') or node.get('createdAt'),
+        # Het issue waar dit een sub-issue van is: daar hoort de taak bij.
+        'ouder_nummer': (inhoud.get('parent') or {}).get('number'),
+        'ouder_titel': (inhoud.get('parent') or {}).get('title'),
+        'ouder_url': (inhoud.get('parent') or {}).get('url'),
         'op_bord_sinds': node.get('createdAt'),
         'iteratie': _iteratie(sprint) if sprint.get('iterationId') else None,
         'gearchiveerd': bool(node.get('isArchived')),

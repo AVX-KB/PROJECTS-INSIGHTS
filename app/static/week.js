@@ -103,16 +103,16 @@ function toonNietAfgerond(w, lopend) {
     return;
   }
   if (lopend) {
-    $('niet-afgerond').innerHTML = tabel(['Taak', 'Titel', 'Prioriteit', 'Status'], taken.map(t => `<tr${rijKlasse(t)}>
-      <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td>
+    $('niet-afgerond').innerHTML = tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Status'], taken.map(t => `<tr${rijKlasse(t)}>
+      <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
       <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td><td class="pi-nowrap">${esc(t.status || '—')}</td></tr>`));
     return;
   }
   $('niet-afgerond').innerHTML = tabel(
-    ['Taak', 'Titel', 'Prioriteit', 'Wat gebeurde er', w.volledig ? 'Status bij einde' : 'Status', 'Nu op', 'Status nu'],
+    ['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Wat gebeurde er', w.volledig ? 'Status bij einde' : 'Status', 'Nu op', 'Status nu'],
     taken.map(t => `<tr${rijKlasse(t)}>
       <td class="pi-nowrap">${taakLink(t)}</td>
-      <td>${esc(t.titel)}</td>
+      <td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
       <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>
       <td class="pi-nowrap">${categorieLabel(t.categorie)}</td>
       <td class="pi-nowrap">${esc(t.status || '—')}</td>
@@ -126,8 +126,8 @@ function toonAfgerond(w, lopend) {
   $('kop-af').textContent = !lopend && !w.volledig ? 'Nu afgerond op deze week' : 'Afgerond';
   $('aantal-af').textContent = taken.length;
   $('afgerond').innerHTML = taken.length
-    ? tabel(['Taak', 'Titel', 'Prioriteit'], taken.map(t => `<tr${rijKlasse(t)}>
-        <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td>
+    ? tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit'], taken.map(t => `<tr${rijKlasse(t)}>
+        <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
         <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td></tr>`))
     : '<div class="avx-empty">Niets afgerond.</div>';
 }

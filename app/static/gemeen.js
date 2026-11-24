@@ -51,6 +51,15 @@ function taakLink(t) {
     : `<span${titel}>${esc(nummer)}</span>`;
 }
 
+// Het parent issue: daar hoort een sub-issue bij. Lange titels worden afgekapt;
+// de volledige titel staat in de tooltip.
+function ouderLabel(ouder) {
+  if (!ouder) return '<span class="avx-text-muted">—</span>';
+  const tekst = `#${ouder.nummer} ${ouder.titel || ''}`;
+  const inhoud = `<span class="pi-ouder" title="${esc(tekst)}">${esc(tekst)}</span>`;
+  return ouder.url ? `<a class="pi-ouder-link" href="${esc(ouder.url)}" target="_blank" rel="noopener">${inhoud}</a>` : inhoud;
+}
+
 function tabel(koppen, rijen) {
   return `<table class="avx-table">
     <thead><tr>${koppen.map(k => `<th>${esc(k)}</th>`).join('')}</tr></thead>
