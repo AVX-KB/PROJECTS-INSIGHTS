@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weekrapport — Projects Insights</title>
+  <link rel="stylesheet" href="stylesheet/avex-core.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="avx-header">
+  <img class="avx-header-logo" src="stylesheet/images/AVEX_LOGO_WIT.png" alt="AVEX">
+  <div class="avx-header-divider"></div>
+  <div class="avx-header-text">
+    <div class="avx-header-eyebrow">AVEX PROJECTS INSIGHTS · WEEKRAPPORT</div>
+    <div class="avx-header-title" id="titel">Weekrapport</div>
+    <div class="avx-header-subtitle" id="bord">Bord laden…</div>
+  </div>
+  <div class="avx-header-actions">
+    <div class="avx-status-line">
+      <span class="avx-dot loading" id="status-dot"></span>
+      <span id="status-tekst">Laden…</span>
+    </div>
+    <a class="avx-header-btn" href="./">← Overzicht</a>
+    <form class="pi-afmelden" method="post" action="logout">
+      <button type="submit" class="avx-header-btn">Afmelden</button>
+    </form>
+  </div>
+</header>
+
+<main class="avx-container">
+  <div id="melding"></div>
+
+  <div class="avx-panel">
+    <div class="avx-panel-row">
+      <div class="avx-label">Week</div>
+      <div class="avx-pill-group" id="navigatie"></div>
+    </div>
+    <div class="avx-panel-row">
+      <div class="avx-label">Alle taken</div>
+      <div class="avx-pill-group" id="getallen-alle"></div>
+    </div>
+    <div class="avx-panel-row">
+      <div class="avx-label">Met prioriteit</div>
+      <div class="avx-pill-group" id="getallen-prio"></div>
+    </div>
+  </div>
+
+  <section class="avx-section">
+    <div class="avx-section-head">
+      <span class="avx-section-dot orange"></span>
+      <h2 id="kop-niet">Niet afgerond</h2>
+      <span class="avx-section-count" id="aantal-niet">0</span>
+    </div>
+    <div class="avx-section-body pi-tabel-wrap" id="niet-afgerond"></div>
+  </section>
+
+  <section class="avx-section">
+    <div class="avx-section-head">
+      <span class="avx-section-dot green"></span>
+      <h2 id="kop-af">Afgerond</h2>
+      <span class="avx-section-count" id="aantal-af">0</span>
+    </div>
+    <div class="avx-section-body pi-tabel-wrap" id="afgerond"></div>
+  </section>
+</main>
+
+<script src="gemeen.js"></script>
+<script src="week.js"></script>
+</body>
+</html>

@@ -130,3 +130,42 @@
 .pi-login-fout { font-size: 13px; color: var(--avx-red-text); min-height: 18px; }
 
 .pi-afmelden { display: inline; }
+
+/* ── Weekrapport en langlopers ── */
+a.avx-pill,
+a.avx-header-btn { text-decoration: none; }
+.pi-uit { opacity: 0.45; }
+.pi-klein { font-size: 12px; }
+.pi-boven-tabel { margin: 0 0 10px; }
+.pi-legenda-regel { display: flex; align-items: center; gap: 8px; margin-top: 6px; color: var(--avx-text-dim); }
+
+/* Een melding die geen fout is: amber-triplet */
+.pi-notitie {
+  background: var(--avx-amber-soft);
+  border: 1px solid var(--avx-amber);
+  color: var(--avx-amber-text);
+  border-radius: var(--avx-radius-sm);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+/* Groepskop in de lijst met langlopers */
+.avx-table tr.pi-groep td {
+  background: var(--avx-surface-2);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--avx-text-dim);
+}
+.avx-table tr.pi-groep:hover td { background: var(--avx-surface-2); }
+
+/* Taak met prioriteit: blauwe balk links, zoals .avx-row-accent */
+.avx-table tr.pi-prio td:first-child { box-shadow: inset 3px 0 0 var(--avx-blue); }
+
+.pi-waarschuwing {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--avx-red-text);
+}

@@ -34,6 +34,8 @@ GITHUB_ORG = os.getenv('GITHUB_ORG', '')
 GITHUB_PROJECT = os.getenv('GITHUB_PROJECT', '0')
 SPRINT_VELD = os.getenv('SPRINT_VELD', 'WEEK')
 STATUS_VELD = os.getenv('STATUS_VELD', 'Status')
+# Keuzeveld voor prioriteit: elke waarde telt als 'met prioriteit'.
+PRIO_VELD = os.getenv('PRIO_VELD', 'Priority')
 AFGEROND_STATUSSEN = os.getenv('AFGEROND_STATUSSEN', 'Done').split(',')
 # Tijdstippen van de momentopnamen, HH:MM gescheiden door komma's.
 SNAPSHOT_TIJDEN = [t.strip() for t in os.getenv('SNAPSHOT_TIJDEN', '06:00,12:00,18:00').split(',') if t.strip()]
@@ -60,7 +62,7 @@ def neem_momentopname():
     with _slot:
         _toestand['laatste_poging'] = time.time()
         try:
-            bord = github.haal_bord(GITHUB_TOKEN, GITHUB_ORG, GITHUB_PROJECT, SPRINT_VELD, STATUS_VELD)
+            bord = github.haal_bord(GITHUB_TOKEN, GITHUB_ORG, GITHUB_PROJECT, SPRINT_VELD, STATUS_VELD, PRIO_VELD)
             conn = opslag.verbinding()
             try:
                 momentopname_id = opslag.sla_momentopname_op(conn, bord)
@@ -115,6 +117,11 @@ def index():
     return send_from_directory(app.static_folder, 'index.html')
 
 
+@app.get('/week')
+def week():
+    return send_from_directory(app.static_folder, 'week.html')
+
+
 @app.get('/health')
 def health():
     return {'ok': True}
@@ -133,6 +140,7 @@ def status():
             'url': f'https://github.com/orgs/{GITHUB_ORG}/projects/{GITHUB_PROJECT}',
             'sprint_veld': SPRINT_VELD,
             'status_veld': STATUS_VELD,
+            'prio_veld': PRIO_VELD,
             'afgerond_statussen': [s.strip() for s in AFGEROND_STATUSSEN if s.strip()],
         },
         'snapshot_tijden': SNAPSHOT_TIJDEN,
@@ -172,17 +180,35 @@ def momentopname_nu():
     return jsonify({'id': momentopname_id})
 
 
-@app.get('/api/vragen/niet-afgerond')
-def vraag_niet_afgerond():
+def _vraag(naam, functie, *args):
+    """Eén vraag uitvoeren met een eigen databaseverbinding."""
     try:
         conn = opslag.verbinding()
         try:
-            return jsonify(analyse.niet_afgerond(conn, AFGEROND_STATUSSEN))
+            antwoord = functie(conn, AFGEROND_STATUSSEN, *args)
         finally:
             conn.close()
     except Exception as fout:
-        log.exception('Vraag niet-afgerond mislukt')
+        log.exception('Vraag %s mislukt', naam)
         return jsonify({'fout': f'Kon de gegevens niet ophalen: {fout}'}), 503
+    if antwoord is None:
+        return jsonify({'fout': 'Deze iteratie bestaat niet.'}), 404
+    return jsonify(antwoord)
+
+
+@app.get('/api/vragen/niet-afgerond')
+def vraag_niet_afgerond():
+    return _vraag('niet-afgerond', analyse.niet_afgerond)
+
+
+@app.get('/api/vragen/week/<iteratie_id>')
+def vraag_week(iteratie_id):
+    return _vraag('week', analyse.week_rapport, iteratie_id)
+
+
+@app.get('/api/vragen/langlopers')
+def vraag_langlopers():
+    return _vraag('langlopers', analyse.langlopers)
 
 
 if __name__ == '__main__':

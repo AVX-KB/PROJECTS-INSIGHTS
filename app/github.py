@@ -5,7 +5,15 @@ Haalt één momentopname van een GitHub Project (v2) op via de GraphQL-API:
 
   * de iteraties van het iteratieveld (SPRINT_VELD, op bord 13 `WEEK`),
     lopend én afgesloten
-  * alle items met hun huidige iteratie en Status
+  * alle items met hun huidige iteratie, Status en prioriteit, en wanneer ze
+    zijn aangemaakt
+
+Prioriteit is op bord 13 een **issue-veld van de organisatie** (`Priority`):
+de waarde staat op het issue zelf, niet in het projectveld met dezelfde naam,
+dat leeg blijft. We lezen daarom eerst de issue-velden en vallen terug op een
+projectveld met die naam. De lijst met organisatievelden zelf
+(`Organization.issueFields`) mag een fine-grained token niet lezen; die is
+ook niet nodig, want elke waarde komt met zijn veldnaam mee.
 
 GitHub geeft via de API alleen de *huidige* waarde van een veld terug, niet
 wat er eerder stond. Daarom bewaart deze app elke dag een momentopname
@@ -39,7 +47,7 @@ query($org: String!, $nummer: Int!, $sprint: String!) {
 """
 
 ITEMS_QUERY = """
-query($org: String!, $nummer: Int!, $sprint: String!, $status: String!, $na: String) {
+query($org: String!, $nummer: Int!, $sprint: String!, $status: String!, $prio: String!, $na: String) {
   organization(login: $org) {
     projectV2(number: $nummer) {
       items(first: %d, after: $na) {
@@ -48,16 +56,27 @@ query($org: String!, $nummer: Int!, $sprint: String!, $status: String!, $na: Str
           id
           type
           isArchived
+          createdAt
           content {
             __typename
-            ... on Issue { number title url state repository { nameWithOwner } }
-            ... on PullRequest { number title url state repository { nameWithOwner } }
-            ... on DraftIssue { title }
+            ... on Issue {
+              number title url state createdAt repository { nameWithOwner }
+              issueFieldValues(first: 20) {
+                nodes {
+                  ... on IssueFieldSingleSelectValue { name field { ... on IssueFieldSingleSelect { name } } }
+                }
+              }
+            }
+            ... on PullRequest { number title url state createdAt repository { nameWithOwner } }
+            ... on DraftIssue { title createdAt }
           }
           sprint: fieldValueByName(name: $sprint) {
             ... on ProjectV2ItemFieldIterationValue { iterationId title startDate duration }
           }
           status: fieldValueByName(name: $status) {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+          prio: fieldValueByName(name: $prio) {
             ... on ProjectV2ItemFieldSingleSelectValue { name }
           }
         }
@@ -116,10 +135,19 @@ def _iteratie(waarde):
     }
 
 
-def _item(node):
+def _issue_veld(inhoud, veldnaam):
+    """De waarde van een keuzeveld op het issue zelf (issue-veld van de organisatie)."""
+    for waarde in ((inhoud.get('issueFieldValues') or {}).get('nodes')) or []:
+        if waarde and (waarde.get('field') or {}).get('name') == veldnaam:
+            return waarde.get('name')
+    return None
+
+
+def _item(node, prio_veld):
     inhoud = node.get('content') or {}
     sprint = node.get('sprint') or {}
     status = node.get('status') or {}
+    prio = node.get('prio') or {}
     return {
         'item_id': node['id'],
         'soort': node.get('type'),
@@ -130,12 +158,17 @@ def _item(node):
         'repo': (inhoud.get('repository') or {}).get('nameWithOwner'),
         'staat': inhoud.get('state'),
         'status': status.get('name'),
+        # Elke waarde telt als prioriteit; leeg is geen prioriteit. Eerst het
+        # issue-veld, dan een projectveld met dezelfde naam.
+        'prioriteit': _issue_veld(inhoud, prio_veld) or prio.get('name'),
+        'aangemaakt_op': inhoud.get('createdAt') or node.get('createdAt'),
+        'op_bord_sinds': node.get('createdAt'),
         'iteratie': _iteratie(sprint) if sprint.get('iterationId') else None,
         'gearchiveerd': bool(node.get('isArchived')),
     }
 
 
-def haal_bord(token, org, nummer, sprint_veld, status_veld):
+def haal_bord(token, org, nummer, sprint_veld, status_veld, prio_veld='Priority'):
     """Het hele bord in één keer: project, iteraties en items."""
     if not token:
         raise GitHubFout('Er staat geen GITHUB_TOKEN in de .env.')
@@ -159,9 +192,9 @@ def haal_bord(token, org, nummer, sprint_veld, status_veld):
 
     items, na = [], None
     while True:
-        data = _vraag(token, ITEMS_QUERY, {**basis, 'status': status_veld, 'na': na})
+        data = _vraag(token, ITEMS_QUERY, {**basis, 'status': status_veld, 'prio': prio_veld, 'na': na})
         pagina = _project(data, org, nummer)['items']
-        items.extend(_item(node) for node in pagina['nodes'])
+        items.extend(_item(node, prio_veld) for node in pagina['nodes'])
         if not pagina['pageInfo']['hasNextPage']:
             break
         na = pagina['pageInfo']['endCursor']

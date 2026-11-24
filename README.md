@@ -23,15 +23,25 @@ De pagina staat daarna op poort 4002.
 |---|---|
 | `app/github.py` | het bord uitlezen via de GraphQL-API van GitHub |
 | `app/opslag.py` | momentopnamen in Postgres (tabellen `pi_*`) |
-| `app/analyse.py` | de vraag: niet afgerond per iteratie |
+| `app/analyse.py` | de vragen: niet afgerond per iteratie, weekrapport, langlopers |
 | `app/app.py` | webserver, API en de planner |
 | `app/toegang.py` | het gedeelde wachtwoord en de sessie |
+| `app/static/week.html`, `week.js` | het weekrapport |
 | `app/reconstructie.py` | eenmalig: de eindstand van een afgelopen iteratie achteraf samenstellen |
 | `app/static/` | de pagina, met `avex-core.css` en Apache ECharts 5.6.0 |
 
 `app/static/vendor/echarts-5.6.0.min.js` is Apache ECharts (Apache-2.0), ongewijzigd overgenomen van cdnjs. SHA-512: `XSmbX3mhrD2ix5fXPTRQb2FwK22sRMVQTpBP2ac8hX7Dh/605hA2QDegVWiAvZPiXIxOV0CbkmUjGionDpbCmw==`.
 
 ## Changelog
+
+### v1.0.3 — 24 november 2026
+
+**Weekrapport, langlopers en prioriteit**
+- Klik op een week in de grafiek (of op een week bij de kerngetallen) voor het **weekrapport** op `/week?id=<iteratie>`: gepland, afgerond en niet afgerond, voor alle taken en voor taken met prioriteit, met de lijsten niet afgerond en afgerond en knoppen naar de vorige en volgende week. Werkt ook voor de lopende week, met de stand van nu.
+- De takenlijst onder de grafiek is weg. Daar staan nu de **langlopers**: open taken die 14 dagen of langer bestaan, in 2 of meer iteraties gepland stonden, of nog op een afgelopen iteratie staan. Eerst wat ooit gepland was, daarbinnen eerst prioriteit, dan het aantal iteraties, dan de leeftijd. De eerste 15 staan er, de rest met **Toon alle**.
+- **Prioriteit**: een taak met een waarde in het veld uit `PRIO_VELD` (standaard `Priority`), welke waarde ook, heeft prioriteit. Dat veld is een issue-veld van de organisatie: de waarde wordt van het issue gelezen (`issueFieldValues`), met een projectveld met dezelfde naam als terugval. Met **Alleen met prioriteit** tonen de grafiek, de kerngetallen en de langlopers alleen die taken. In lijsten staan ze bovenaan, met de waarde als label.
+- `pi_item_stand` heeft de kolommen `prioriteit`, `aangemaakt_op` en `op_bord_sinds`; ze worden bij het opstarten vanzelf toegevoegd en vanaf de eerste momentopname gevuld.
+- Wat het overzicht en het weekrapport delen, staat in `app/static/gemeen.js`.
 
 ### v1.0.2 — 24 november 2026
 

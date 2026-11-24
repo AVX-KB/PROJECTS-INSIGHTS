@@ -34,7 +34,17 @@
   <div id="melding"></div>
 
   <div class="avx-panel">
-    <div class="avx-pill-group" id="kerngetallen"></div>
+    <div class="avx-panel-row">
+      <div class="avx-label">Tonen</div>
+      <div class="avx-pill-group" id="filter">
+        <button type="button" class="avx-pill gray" data-prio="0" aria-pressed="true">Alle taken</button>
+        <button type="button" class="avx-pill blue" data-prio="1" aria-pressed="false">Alleen met prioriteit</button>
+      </div>
+    </div>
+    <div class="avx-panel-row">
+      <div class="avx-label">Kerngetallen</div>
+      <div class="avx-pill-group" id="kerngetallen"></div>
+    </div>
   </div>
 
   <section class="avx-section">
@@ -47,21 +57,24 @@
       <div id="grafiek" class="pi-grafiek" role="img"
            aria-label="Gestapelde staafgrafiek: niet afgeronde taken per afgelopen iteratie"></div>
       <p class="pi-toelichting">
-        Klik op een staaf om de taken te zien. Lichter gekleurde staven zijn
-        <b>onvolledig</b>: die iteratie eindigde voordat de eerste momentopname
-        er was, dus alleen wat er nu nog op staat telt mee. Een iteratie met
-        <b>gereconstrueerd</b> eronder heeft een achteraf samengestelde eindstand.
+        Klik op een week voor het <b>weekrapport</b>. Lichter gekleurde staven zijn
+        <b>onvolledig</b>: die iteratie eindigde voordat het vastleggen begon, dus alleen
+        wat er nu nog op staat telt mee. Onder een iteratie met <b>gereconstr.</b> is de
+        eindstand achteraf samengesteld.
       </p>
     </div>
   </section>
 
   <section class="avx-section">
     <div class="avx-section-head">
-      <span class="avx-section-dot gray"></span>
-      <h2 id="taken-titel">Taken</h2>
-      <span class="avx-section-count" id="aantal-taken">0</span>
+      <span class="avx-section-dot red"></span>
+      <h2>Langlopers</h2>
+      <span class="avx-section-count" id="aantal-langlopers">0</span>
     </div>
-    <div class="avx-section-body pi-tabel-wrap" id="taken"></div>
+    <div class="avx-section-body pi-tabel-wrap">
+      <p class="pi-toelichting pi-boven-tabel" id="langlopers-uitleg"></p>
+      <div id="langlopers"></div>
+    </div>
   </section>
 
   <section class="avx-section">
@@ -70,18 +83,26 @@
       <h2>Hoe wordt dit geteld</h2>
     </div>
     <div class="avx-section-body pi-uitleg">
-      <p>Het bord wordt elke dag vastgelegd om <span id="tijden">06:00, 12:00 en 18:00</span>. GitHub onthoudt zelf niet op welke
-        iteratie een taak eerder stond; deze momentopnamen zijn daarom de enige bron.</p>
+      <p>Het bord wordt elke dag vastgelegd om <span id="tijden">06:00, 12:00 en 18:00</span>.
+        GitHub onthoudt zelf niet op welke iteratie een taak eerder stond; deze momentopnamen
+        zijn daarom de enige bron.</p>
       <p>Per afgelopen iteratie telt de <b>eindstand</b>: de laatste momentopname binnen
         de iteratie. Alles wat dan op die iteratie stond en niet <span id="afgerond-statussen">Done</span>
         was, telt als niet afgerond, ingedeeld naar wat er daarna mee gebeurde:</p>
-      <div class="avx-pill-group pi-legenda" id="legenda"></div>
+      <div class="pi-legenda" id="legenda"></div>
       <p>De lijn is het aandeel niet afgerond van alles wat in de eindstand op de
         iteratie stond.</p>
+      <p><b>Prioriteit:</b> een taak heeft prioriteit als het veld <span id="prio-veld">Priority</span>
+        een waarde heeft, welke dan ook. Het telt met de prioriteit van nu.</p>
+      <p><b>Langlopers</b> zijn openstaande taken die al lang bestaan, in meer iteraties
+        gepland stonden, of nog op een afgelopen iteratie staan. Bovenaan staan de taken die
+        ooit gepland waren: steeds plannen en niet afmaken weegt zwaarder dan lang op de
+        backlog staan. Daarbinnen eerst prioriteit, dan het aantal iteraties, dan de leeftijd.</p>
     </div>
   </section>
 </main>
 
+<script src="gemeen.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

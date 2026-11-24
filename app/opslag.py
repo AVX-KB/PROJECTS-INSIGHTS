@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS pi_item_stand (
 
 CREATE INDEX IF NOT EXISTS pi_item_stand_iteratie ON pi_item_stand (iteratie_id);
 
+-- Sinds v1.0.3: prioriteit en leeftijd van een taak
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS prioriteit text;
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS aangemaakt_op timestamptz;
+ALTER TABLE pi_item_stand ADD COLUMN IF NOT EXISTS op_bord_sinds timestamptz;
+
 -- Sinds v1.0.2: herkomst van een momentopname
 ALTER TABLE pi_momentopname ADD COLUMN IF NOT EXISTS bron text NOT NULL DEFAULT 'github';
 ALTER TABLE pi_momentopname ADD COLUMN IF NOT EXISTS toelichting text;
@@ -127,11 +132,13 @@ def sla_momentopname_op(conn, bord, genomen_op=None, bron='github', toelichting=
 
         psycopg2.extras.execute_values(cur, """
             INSERT INTO pi_item_stand (momentopname_id, item_id, soort, nummer, titel, url,
-                                       repo, staat, status, iteratie_id, gearchiveerd)
+                                       repo, staat, status, iteratie_id, gearchiveerd,
+                                       prioriteit, aangemaakt_op, op_bord_sinds)
             VALUES %s
         """, [(momentopname_id, i['item_id'], i['soort'], i['nummer'], i['titel'], i['url'],
                i['repo'], i['staat'], i['status'],
-               i['iteratie']['iteratie_id'] if i['iteratie'] else None, i['gearchiveerd'])
+               i['iteratie']['iteratie_id'] if i['iteratie'] else None, i['gearchiveerd'],
+               i.get('prioriteit'), i.get('aangemaakt_op'), i.get('op_bord_sinds'))
               for i in bord['items']])
     conn.commit()
     return momentopname_id
@@ -234,7 +241,7 @@ def stand(conn, momentopname_id):
     with conn.cursor() as cur:
         cur.execute("""
             SELECT item_id, soort, nummer, titel, url, repo, staat, status,
-                   iteratie_id, gearchiveerd
+                   iteratie_id, gearchiveerd, prioriteit, aangemaakt_op, op_bord_sinds
               FROM pi_item_stand WHERE momentopname_id = %s
         """, (momentopname_id,))
         return {rij['item_id']: rij for rij in cur.fetchall()}
@@ -269,3 +276,18 @@ def eerste_echte_momentopname(conn):
              WHERE bron = 'github' ORDER BY genomen_op LIMIT 1
         """)
         return cur.fetchone()
+
+
+def iteraties_per_item(conn):
+    """Per item alle iteraties waarop het ooit stond, over alle momentopnamen heen.
+
+    Gaat zo ver terug als de momentopnamen (en reconstructies) gaan; wat daarvoor
+    gebeurde, weet GitHub niet meer.
+    """
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT item_id, array_agg(DISTINCT iteratie_id) AS iteraties
+              FROM pi_item_stand WHERE iteratie_id IS NOT NULL
+             GROUP BY item_id
+        """)
+        return {rij['item_id']: rij['iteraties'] for rij in cur.fetchall()}
