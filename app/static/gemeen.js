@@ -51,13 +51,111 @@ function taakLink(t) {
     : `<span${titel}>${esc(nummer)}</span>`;
 }
 
-// Het parent issue: daar hoort een sub-issue bij. Lange titels worden afgekapt;
-// de volledige titel staat in de tooltip.
-function ouderLabel(ouder) {
-  if (!ouder) return '<span class="avx-text-muted">—</span>';
-  const tekst = `#${ouder.nummer} ${ouder.titel || ''}`;
-  const inhoud = `<span class="pi-ouder" title="${esc(tekst)}">${esc(tekst)}</span>`;
-  return ouder.url ? `<a class="pi-ouder-link" href="${esc(ouder.url)}" target="_blank" rel="noopener">${inhoud}</a>` : inhoud;
+// ---------------------------------------------------------------------------
+// Boom: hoofdissues met hun sub-issues
+// ---------------------------------------------------------------------------
+//
+// Zet een gesorteerde lijst taken om in boomvolgorde. Een sub-issue komt onder
+// zijn hoofdissue. Staat het hoofdissue zelf niet in de lijst, dan komt het als
+// kopregel boven zijn sub-issues. Een boom staat op de plek van zijn hoogst
+// geplaatste taak, zodat de volgorde van de lijst (prioriteit eerst enz.) blijft.
+//
+// Geeft regels terug: { soort: 'taak', taak, diepte, aantalSub }
+//                  of { soort: 'hoofd', ouder, aantalSub }  (kopregel)
+
+function boom(taken) {
+  const perUrl = new Map(taken.filter(t => t.url).map(t => [t.url, t]));
+  const directeOuder = t => {
+    const url = t.ouder && t.ouder.url;
+    return url && url !== t.url ? perUrl.get(url) || null : null;
+  };
+  // Een taak die via zijn voorouders bij zichzelf uitkomt, staat in een kring.
+  // Op GitHub kan dat niet, maar dan krijgt hij hier geen ouder, in plaats van
+  // dat de boom eindeloos doorloopt.
+  const inKring = t => {
+    const gezien = new Set([t]);
+    for (let o = directeOuder(t); o; o = directeOuder(o)) {
+      if (gezien.has(o)) return o === t;
+      gezien.add(o);
+    }
+    return false;
+  };
+  const kring = new Set(taken.filter(inKring));
+  const ouderInLijst = t => (kring.has(t) ? null : directeOuder(t));
+  // Hoogste voorouder binnen de lijst.
+  const top = t => {
+    while (ouderInLijst(t)) t = ouderInLijst(t);
+    return t;
+  };
+
+  const kinderen = new Map();
+  const wortels = new Map();   // sleutel -> wortel, in volgorde van eerste voorkomen
+  for (const t of taken) {
+    const ouder = ouderInLijst(t);
+    if (ouder) {
+      if (!kinderen.has(ouder)) kinderen.set(ouder, []);
+      kinderen.get(ouder).push(t);
+    }
+    const bovenste = top(t);
+    // Een hoofdissue als kopregel alleen als het zelf niet in de lijst staat.
+    const extern = bovenste.ouder && bovenste.ouder.url && !perUrl.has(bovenste.ouder.url) ? bovenste.ouder : null;
+    const sleutel = extern ? `hoofd:${extern.url}` : `taak:${bovenste.url || bovenste.nummer}`;
+    if (!wortels.has(sleutel)) {
+      wortels.set(sleutel, extern ? { soort: 'hoofd', ouder: extern, leden: [] } : { soort: 'taak', taak: bovenste });
+    }
+    if (extern && bovenste === t) wortels.get(sleutel).leden.push(t);
+  }
+
+  const regels = [];
+  const telSub = t => (kinderen.get(t) || []).reduce((n, k) => n + 1 + telSub(k), 0);
+  const zet = (t, diepte) => {
+    regels.push({ soort: 'taak', taak: t, diepte, aantalSub: telSub(t) });
+    for (const k of kinderen.get(t) || []) zet(k, diepte + 1);
+  };
+  for (const w of wortels.values()) {
+    if (w.soort === 'hoofd') {
+      regels.push({ soort: 'hoofd', ouder: w.ouder,
+        aantalSub: w.leden.reduce((n, t) => n + 1 + telSub(t), 0) });
+      for (const t of w.leden) zet(t, 1);
+    } else {
+      zet(w.taak, 0);
+    }
+  }
+  return regels;
+}
+
+// De titelcel van een taak in de boom: ingesprongen met een haakje, en bij een
+// hoofdissue het aantal sub-issues in deze lijst.
+function boomTitel(regel) {
+  const t = regel.taak;
+  const haak = regel.diepte ? '<span class="pi-boom-haak" aria-hidden="true">└</span>' : '';
+  const sub = regel.aantalSub
+    ? ` <span class="pi-boom-aantal">${regel.aantalSub} sub-issue${regel.aantalSub === 1 ? '' : 's'}</span>` : '';
+  const klasse = regel.aantalSub ? ' pi-boom-hoofd' : '';
+  return `<td class="pi-boom pi-boom-${Math.min(regel.diepte, 3)}${klasse}">${haak}${esc(t.titel)}${sub}</td>`;
+}
+
+// Kopregel voor een hoofdissue dat zelf niet in de lijst staat.
+function hoofdRij(regel, kolommen) {
+  const o = regel.ouder;
+  const tekst = `#${o.nummer} ${o.titel || ''}`;
+  const link = o.url ? `<a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(tekst)}</a>` : esc(tekst);
+  return `<tr class="pi-hoofd-rij"><td colspan="${kolommen}">
+    <span class="pi-boom-label">Hoofdissue</span> ${link}
+    <span class="pi-boom-aantal">${regel.aantalSub} sub-issue${regel.aantalSub === 1 ? '' : 's'} hieronder</span>
+  </td></tr>`;
+}
+
+// Een hele tabel als boom. `cellen(taak)` geeft de cellen ná Taak en Titel.
+function boomTabel(koppen, taken, cellen, rijKlasse = () => '') {
+  const rijen = boom(taken).map(regel => regel.soort === 'hoofd'
+    ? hoofdRij(regel, koppen.length)
+    : `<tr${rijKlasse(regel.taak)}>
+        <td class="pi-nowrap">${taakLink(regel.taak)}</td>
+        ${boomTitel(regel)}
+        ${cellen(regel.taak)}
+      </tr>`);
+  return tabel(koppen, rijen);
 }
 
 function tabel(koppen, rijen) {

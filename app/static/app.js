@@ -255,17 +255,8 @@ function toonLanglopers() {
     return;
   }
 
-  const zichtbaar = alleLangloper ? alle : alle.slice(0, LANGLOPERS_KORT);
-  const rijen = [];
-  let groep = null;
-  for (const t of zichtbaar) {
-    const nieuw = t.ooit_gepland ? 'gepland' : 'backlog';
-    if (nieuw !== groep) {
-      groep = nieuw;
-      const aantal = alle.filter(x => x.ooit_gepland === t.ooit_gepland).length;
-      rijen.push(`<tr class="pi-groep"><td colspan="8">${t.ooit_gepland
-        ? 'Stond gepland en is nog niet af' : 'Alleen op de backlog'} <span class="avx-text-muted">(${aantal})</span></td></tr>`);
-    }
+  const koppen = ['Taak', 'Titel', 'Prioriteit', 'Status', 'Staat nu op', 'Gepland in', 'Open'];
+  const cellen = t => {
     const nuOp = t.iteratie_nu
       ? `${esc(t.iteratie_nu)}${t.iteratie_nu_afgelopen ? ' <span class="pi-waarschuwing">afgelopen</span>' : ''}`
       : '<span class="avx-text-muted">backlog</span>';
@@ -273,22 +264,37 @@ function toonLanglopers() {
       ? `<b>${t.gepland_in.length}×</b> <span class="avx-text-muted" title="${esc(t.gepland_in.join(' → '))}">${
           esc(t.gepland_in.map(w => w.replace(/^\D+/, '')).join(' → '))}</span>`
       : '<span class="avx-text-muted">—</span>';
-    rijen.push(`<tr>
-      <td class="pi-nowrap">${taakLink(t)}</td>
-      <td>${esc(t.titel)}</td>
-      <td>${ouderLabel(t.ouder)}</td>
-      <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>
+    return `<td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>
       <td class="pi-nowrap">${esc(t.status || '—')}</td>
       <td class="pi-nowrap">${nuOp}</td>
       <td class="pi-nowrap">${gepland}</td>
-      <td class="pi-nowrap">${t.dagen_open != null ? `${t.dagen_open} dagen` : '—'}</td>
-    </tr>`);
+      <td class="pi-nowrap">${t.dagen_open != null ? `${t.dagen_open} dagen` : '—'}</td>`;
+  };
+
+  // Per groep een boom. Ingekort wordt alleen tussen bomen, nooit midden in een boom.
+  const rijen = [];
+  let getoond = 0;
+  for (const [gepland, kop] of [[true, 'Stond gepland en is nog niet af'], [false, 'Alleen op de backlog']]) {
+    const groep = alle.filter(t => t.ooit_gepland === gepland);
+    if (!groep.length || (!alleLangloper && getoond >= LANGLOPERS_KORT)) continue;
+    rijen.push(`<tr class="pi-groep"><td colspan="${koppen.length}">${kop}
+      <span class="avx-text-muted">(${groep.length})</span></td></tr>`);
+    for (const regel of boom(groep)) {
+      const nieuweBoom = regel.soort === 'hoofd' || regel.diepte === 0;
+      if (nieuweBoom && !alleLangloper && getoond >= LANGLOPERS_KORT) break;
+      if (regel.soort === 'hoofd') { rijen.push(hoofdRij(regel, koppen.length)); continue; }
+      getoond++;
+      rijen.push(`<tr>
+        <td class="pi-nowrap">${taakLink(regel.taak)}</td>
+        ${boomTitel(regel)}
+        ${cellen(regel.taak)}
+      </tr>`);
+    }
   }
-  const meer = alle.length > LANGLOPERS_KORT
+  const meer = (alleLangloper && alle.length > LANGLOPERS_KORT) || (!alleLangloper && alle.length > getoond)
     ? `<button type="button" class="avx-btn avx-mt-sm" id="meer-langlopers">${alleLangloper
         ? 'Minder tonen' : `Toon alle ${alle.length}`}</button>` : '';
-  $('langlopers').innerHTML =
-    tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Status', 'Staat nu op', 'Gepland in', 'Open'], rijen) + meer;
+  $('langlopers').innerHTML = tabel(koppen, rijen) + meer;
   const knop = $('meer-langlopers');
   if (knop) knop.addEventListener('click', () => { alleLangloper = !alleLangloper; toonLanglopers(); });
 }

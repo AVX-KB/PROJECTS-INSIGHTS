@@ -103,22 +103,18 @@ function toonNietAfgerond(w, lopend) {
     return;
   }
   if (lopend) {
-    $('niet-afgerond').innerHTML = tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Status'], taken.map(t => `<tr${rijKlasse(t)}>
-      <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
-      <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td><td class="pi-nowrap">${esc(t.status || '—')}</td></tr>`));
+    $('niet-afgerond').innerHTML = boomTabel(['Taak', 'Titel', 'Prioriteit', 'Status'], taken, t => `
+      <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td><td class="pi-nowrap">${esc(t.status || '—')}</td>`, rijKlasse);
     return;
   }
-  $('niet-afgerond').innerHTML = tabel(
-    ['Taak', 'Titel', 'Parent issue', 'Prioriteit', 'Wat gebeurde er', w.volledig ? 'Status bij einde' : 'Status', 'Nu op', 'Status nu'],
-    taken.map(t => `<tr${rijKlasse(t)}>
-      <td class="pi-nowrap">${taakLink(t)}</td>
-      <td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
+  $('niet-afgerond').innerHTML = boomTabel(
+    ['Taak', 'Titel', 'Prioriteit', 'Wat gebeurde er', w.volledig ? 'Status bij einde' : 'Status', 'Nu op', 'Status nu'],
+    taken, t => `
       <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>
       <td class="pi-nowrap">${categorieLabel(t.categorie)}</td>
       <td class="pi-nowrap">${esc(t.status || '—')}</td>
       <td class="pi-nowrap">${esc(t.iteratie_nu || 'backlog')}</td>
-      <td class="pi-nowrap">${esc(t.status_nu || '—')}</td>
-    </tr>`));
+      <td class="pi-nowrap">${esc(t.status_nu || '—')}</td>`, rijKlasse);
 }
 
 function toonAfgerond(w, lopend) {
@@ -126,9 +122,8 @@ function toonAfgerond(w, lopend) {
   $('kop-af').textContent = !lopend && !w.volledig ? 'Nu afgerond op deze week' : 'Afgerond';
   $('aantal-af').textContent = taken.length;
   $('afgerond').innerHTML = taken.length
-    ? tabel(['Taak', 'Titel', 'Parent issue', 'Prioriteit'], taken.map(t => `<tr${rijKlasse(t)}>
-        <td class="pi-nowrap">${taakLink(t)}</td><td>${esc(t.titel)}</td><td>${ouderLabel(t.ouder)}</td>
-        <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td></tr>`))
+    ? boomTabel(['Taak', 'Titel', 'Prioriteit'], taken, t => `
+        <td class="pi-nowrap">${prioLabel(t.prioriteit)}</td>`, rijKlasse)
     : '<div class="avx-empty">Niets afgerond.</div>';
 }
 

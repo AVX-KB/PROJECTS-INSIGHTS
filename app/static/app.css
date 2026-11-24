@@ -170,15 +170,32 @@ a.avx-header-btn { text-decoration: none; }
   color: var(--avx-red-text);
 }
 
-/* Parent issue: één regel, afgekapt; de volledige titel staat in de tooltip */
-.pi-ouder {
-  display: inline-block;
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: bottom;
-  color: var(--avx-text-dim);
+/* ── Boom: hoofdissues met hun sub-issues ── */
+.pi-boom-1 { padding-left: 26px !important; }
+.pi-boom-2 { padding-left: 44px !important; }
+.pi-boom-3 { padding-left: 62px !important; }
+.pi-boom-haak {
+  color: var(--avx-text-muted);
+  margin-right: 6px;
 }
-.pi-tabel-wrap .avx-table a.pi-ouder-link { font-weight: 400; }
-.pi-tabel-wrap .avx-table a.pi-ouder-link:hover .pi-ouder { color: var(--avx-accent-light); }
+.pi-boom-hoofd { font-weight: 600; }
+.pi-boom-aantal {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--avx-text-muted);
+  white-space: nowrap;
+}
+/* Kopregel voor een hoofdissue dat zelf niet in de lijst staat */
+.avx-table tr.pi-hoofd-rij td {
+  background: var(--avx-accent-bg);
+  font-weight: 600;
+}
+.avx-table tr.pi-hoofd-rij:hover td { background: var(--avx-accent-bg); }
+.pi-boom-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--avx-text-dim);
+  margin-right: 6px;
+}

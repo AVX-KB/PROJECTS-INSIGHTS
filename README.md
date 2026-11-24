@@ -34,6 +34,13 @@ De pagina staat daarna op poort 4002.
 
 ## Changelog
 
+### v1.0.5 — 24 november 2026
+
+**Hoofdissues en sub-issues als boom**
+- De langlopers en de lijsten in het weekrapport staan nu als boom: een sub-issue staat ingesprongen onder zijn hoofdissue, en bij een hoofdissue staat hoeveel sub-issues er in de lijst onder hangen. Staat het hoofdissue zelf niet in de lijst, dan komt het als kopregel "Hoofdissue" boven zijn sub-issues.
+- Een boom staat op de plek van zijn hoogst geplaatste taak, zodat de volgorde (prioriteit eerst enzovoort) blijft. "Toon alle" bij de langlopers knipt alleen tussen bomen.
+- De kolom Parent issue is weg; de boom laat het nu zien.
+
 ### v1.0.4 — 24 november 2026
 
 **Parent issue**
