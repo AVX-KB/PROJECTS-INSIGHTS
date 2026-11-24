@@ -8,6 +8,11 @@ beginnen met `pi_`.
   pi_item_stand    per momentopname: elk item met zijn iteratie en Status
   pi_iteratie      de iteraties van het iteratieveld (titel, start, duur)
 
+Een momentopname heeft een bron: `github` (zelf uitgelezen) of `reconstructie`
+(achteraf samengesteld voor een iteratie die eindigde vóór het vastleggen
+begon, zie reconstructie.py). Een reconstructie telt alleen als eindstand van
+die iteratie, nooit als "de stand van nu" en niet voor de planner.
+
 Deze momentopnamen zijn de enige plek waar de geschiedenis van het bord staat:
 GitHub zelf onthoudt niet op welke iteratie een taak eerder stond. Wat hier
 weg is, komt niet terug.
@@ -57,6 +62,10 @@ CREATE TABLE IF NOT EXISTS pi_item_stand (
 );
 
 CREATE INDEX IF NOT EXISTS pi_item_stand_iteratie ON pi_item_stand (iteratie_id);
+
+-- Sinds v1.0.2: herkomst van een momentopname
+ALTER TABLE pi_momentopname ADD COLUMN IF NOT EXISTS bron text NOT NULL DEFAULT 'github';
+ALTER TABLE pi_momentopname ADD COLUMN IF NOT EXISTS toelichting text;
 """
 
 
@@ -87,8 +96,11 @@ def _lokaal(kolom):
 # Schrijven
 # ---------------------------------------------------------------------------
 
-def sla_momentopname_op(conn, bord):
-    """Eén momentopname wegschrijven, in één transactie. Geeft het id terug."""
+def sla_momentopname_op(conn, bord, genomen_op=None, bron='github', toelichting=None):
+    """Eén momentopname wegschrijven, in één transactie. Geeft het id terug.
+
+    `genomen_op` (een timestamptz) alleen bij een reconstructie; anders is het nu.
+    """
     with conn.cursor() as cur:
         # Iteraties komen uit de veldinstellingen én uit de items zelf: een
         # iteratie die uit de instellingen is verwijderd, hangt soms nog aan een item.
@@ -106,9 +118,11 @@ def sla_momentopname_op(conn, bord):
             """, it)
 
         cur.execute("""
-            INSERT INTO pi_momentopname (project_id, project_titel, aantal_items)
-            VALUES (%s, %s, %s) RETURNING id
-        """, (bord['project_id'], bord['titel'], len(bord['items'])))
+            INSERT INTO pi_momentopname (project_id, project_titel, aantal_items,
+                                         genomen_op, bron, toelichting)
+            VALUES (%s, %s, %s, coalesce(%s, now()), %s, %s) RETURNING id
+        """, (bord['project_id'], bord['titel'], len(bord['items']),
+              genomen_op, bron, toelichting))
         momentopname_id = cur.fetchone()['id']
 
         psycopg2.extras.execute_values(cur, """
@@ -153,10 +167,11 @@ def geplande_momentopname_nodig(conn, tijdstippen):
                      unnest(ARRAY[nu.t::date, nu.t::date - 1]) AS dag
                WHERE dag + tijd::time <= nu.t
             )
-            SELECT NOT EXISTS (SELECT 1 FROM pi_momentopname) AS nog_geen,
+            SELECT NOT EXISTS (SELECT 1 FROM pi_momentopname WHERE bron = 'github') AS nog_geen,
                    (SELECT t FROM slot) IS NOT NULL AND NOT EXISTS (
                      SELECT 1 FROM pi_momentopname
-                      WHERE {_lokaal('genomen_op')} >= (SELECT t FROM slot)
+                      WHERE bron = 'github'
+                        AND {_lokaal('genomen_op')} >= (SELECT t FROM slot)
                    ) AS slot_gemist
         """, {'tz': TIJDZONE, 'tijden': list(tijdstippen)})
         rij = cur.fetchone()
@@ -166,9 +181,10 @@ def geplande_momentopname_nodig(conn, tijdstippen):
 def overzicht_momentopnamen(conn):
     with conn.cursor() as cur:
         cur.execute(f"""
-            SELECT count(*) AS aantal,
-                   min({_lokaal('genomen_op')}) AS eerste,
-                   max({_lokaal('genomen_op')}) AS laatste
+            SELECT count(*) FILTER (WHERE bron = 'github') AS aantal,
+                   count(*) FILTER (WHERE bron = 'reconstructie') AS reconstructies,
+                   min({_lokaal('genomen_op')}) FILTER (WHERE bron = 'github') AS eerste,
+                   max({_lokaal('genomen_op')}) FILTER (WHERE bron = 'github') AS laatste
               FROM pi_momentopname
         """, {'tz': TIJDZONE})
         return cur.fetchone()
@@ -177,8 +193,9 @@ def overzicht_momentopnamen(conn):
 def laatste_momentopname(conn):
     with conn.cursor() as cur:
         cur.execute(f"""
-            SELECT id, project_titel, aantal_items, {_lokaal('genomen_op')} AS genomen_op
-              FROM pi_momentopname ORDER BY genomen_op DESC LIMIT 1
+            SELECT id, project_id, project_titel, aantal_items, {_lokaal('genomen_op')} AS genomen_op
+              FROM pi_momentopname WHERE bron = 'github'
+             ORDER BY genomen_op DESC LIMIT 1
         """, {'tz': TIJDZONE})
         return cur.fetchone()
 
@@ -188,14 +205,16 @@ def eindstand_momentopname(conn, startdatum, einddatum):
 
     einddatum is de eerste dag ná de iteratie. Geen momentopname in die periode
     betekent: van deze iteratie weten we niet hoe hij eindigde.
+
+    Een echte momentopname gaat voor een reconstructie.
     """
     with conn.cursor() as cur:
         cur.execute(f"""
-            SELECT id, {_lokaal('genomen_op')} AS genomen_op
+            SELECT id, bron, toelichting, {_lokaal('genomen_op')} AS genomen_op
               FROM pi_momentopname
              WHERE {_lokaal('genomen_op')}::date >= %(start)s
                AND {_lokaal('genomen_op')}::date <  %(eind)s
-             ORDER BY genomen_op DESC LIMIT 1
+             ORDER BY (bron = 'github') DESC, genomen_op DESC LIMIT 1
         """, {'tz': TIJDZONE, 'start': startdatum, 'eind': einddatum})
         return cur.fetchone()
 
@@ -219,3 +238,34 @@ def stand(conn, momentopname_id):
               FROM pi_item_stand WHERE momentopname_id = %s
         """, (momentopname_id,))
         return {rij['item_id']: rij for rij in cur.fetchall()}
+
+
+# ---------------------------------------------------------------------------
+# Voor reconstructie.py
+# ---------------------------------------------------------------------------
+
+def iteratie_op_titel(conn, titel):
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT iteratie_id, titel, startdatum, duur_dagen,
+                   startdatum + duur_dagen AS einddatum
+              FROM pi_iteratie WHERE titel = %s
+        """, (titel,))
+        return cur.fetchall()
+
+
+def lokaal_moment(conn, datum, tijd):
+    """Een lokale datum en tijd (TIJDZONE) als timestamptz."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT (%(d)s::date + %(t)s::time) AT TIME ZONE %(tz)s AS moment",
+                    {'d': datum, 't': tijd, 'tz': TIJDZONE})
+        return cur.fetchone()['moment']
+
+
+def eerste_echte_momentopname(conn):
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id, project_id, project_titel FROM pi_momentopname
+             WHERE bron = 'github' ORDER BY genomen_op LIMIT 1
+        """)
+        return cur.fetchone()

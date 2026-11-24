@@ -173,3 +173,41 @@ def haal_bord(token, org, nummer, sprint_veld, status_veld):
         'iteraties': iteraties,
         'items': items,
     }
+
+
+STATUS_GESCHIEDENIS_QUERY = """
+query($id: ID!) {
+  node(id: $id) {
+    ... on ProjectV2Item {
+      createdAt
+      content {
+        ... on Issue {
+          timelineItems(first: 100, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) {
+            nodes { ... on ProjectV2ItemStatusChangedEvent { createdAt status } }
+          }
+        }
+        ... on PullRequest {
+          timelineItems(first: 100, itemTypes: [PROJECT_V2_ITEM_STATUS_CHANGED_EVENT]) {
+            nodes { ... on ProjectV2ItemStatusChangedEvent { createdAt status } }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+
+def status_geschiedenis(token, item_id):
+    """Wanneer het item op het bord kwam, en elke statuswijziging daarna.
+
+    Geeft (op_bord_sinds, [(moment, status), ...]) terug, met ISO-tijden in UTC.
+    GitHub bewaart dit wel voor de Status, maar niet voor een iteratieveld; zie
+    reconstructie.py voor wat dat betekent.
+    """
+    node = _vraag(token, STATUS_GESCHIEDENIS_QUERY, {'id': item_id}).get('node')
+    if not node:
+        raise GitHubFout(f'Item {item_id} niet gevonden op GitHub.')
+    inhoud = node.get('content') or {}
+    gebeurtenissen = ((inhoud.get('timelineItems') or {}).get('nodes')) or []
+    return node['createdAt'], sorted((g['createdAt'], g['status']) for g in gebeurtenissen if g)

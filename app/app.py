@@ -149,6 +149,7 @@ def status():
             conn.close()
         antwoord['momentopnamen'] = {
             'aantal': overzicht['aantal'],
+            'reconstructies': overzicht['reconstructies'],
             'eerste': overzicht['eerste'].isoformat(timespec='minutes') if overzicht['eerste'] else None,
             'laatste': overzicht['laatste'].isoformat(timespec='minutes') if overzicht['laatste'] else None,
         }

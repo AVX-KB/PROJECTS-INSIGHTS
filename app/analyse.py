@@ -21,6 +21,9 @@ Iteraties die eindigden vóór de eerste momentopname hebben geen eindstand.
 Daarvan tonen we alleen wat we nu kunnen zien: items die nu nog op X staan en
 niet afgerond zijn ("blijven staan"). Wat toen al was doorgeschoven, is niet
 meer terug te halen. Die iteraties krijgen `volledig: False`.
+
+Een iteratie kan ook een gereconstrueerde eindstand hebben (reconstructie.py):
+dan is hij volledig, maar met `gereconstrueerd: True` en een toelichting.
 """
 
 from datetime import timedelta
@@ -116,6 +119,8 @@ def niet_afgerond(conn, afgerond_statussen):
         resultaat.append({
             **basis,
             'volledig': volledig,
+            'gereconstrueerd': bool(eind and eind['bron'] == 'reconstructie'),
+            'toelichting': eind['toelichting'] if eind else None,
             'eindstand_op': eind['genomen_op'].isoformat(timespec='minutes') if eind else None,
             # Zonder eindstand weten we niet hoeveel er gepland was.
             'gepland': len(op_x) if volledig else None,

@@ -163,7 +163,9 @@ function tooltip(punten) {
   const totaal = it.volledig
     ? `${it.niet_afgerond} van ${it.gepland} niet afgerond (${it.percentage ?? 0}%)`
     : `${it.niet_afgerond} nu nog open · <i>onvolledig, geen eindstand</i>`;
-  return [kop, totaal, ...regels].join('<br>');
+  const herkomst = it.gereconstrueerd
+    ? [`<i style="color:${token('--avx-text-muted')}">${esc(it.toelichting || 'Gereconstrueerde eindstand.')}</i>`] : [];
+  return [kop, totaal, ...regels, ...herkomst].join('<br>');
 }
 
 function toonGrafiek() {
@@ -203,14 +205,18 @@ function toonGrafiek() {
       trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: tooltip,
       backgroundColor: token('--avx-surface'), borderColor: token('--avx-border-strong'),
       textStyle: { color: token('--avx-text'), fontSize: 12 },
+      extraCssText: 'max-width: 340px; white-space: normal;',
     },
     xAxis: {
       type: 'category',
       data: iteraties.map(i => i.titel),
-      axisLabel: { color: tekst, hideOverlap: true,
+      axisLabel: { color: tekst, interval: 0, hideOverlap: true, fontSize: 11,
         formatter: (titel, index) => {
           const it = iteraties[index];
-          return `${titel}\n{datum|${datum(it.startdatum)}}` + (it.volledig ? '' : '\n{onvolledig|onvolledig}');
+          // kort, zodat de labels naast elkaar passen; de tooltip legt het uit
+          const extra = !it.volledig ? '\n{onvolledig|onvolledig}'
+            : it.gereconstrueerd ? '\n{onvolledig|gereconstr.}' : '';
+          return `${titel}\n{datum|${datum(it.startdatum)}}` + extra;
         },
         rich: {
           datum: { color: token('--avx-text-muted'), fontSize: 10 },
@@ -257,7 +263,9 @@ function toonTaken(it) {
     $('taken').innerHTML = '<div class="avx-empty">Alles op deze iteratie is afgerond.</div>';
     return;
   }
-  const bron = it.volledig
+  const bron = it.gereconstrueerd
+    ? `<p class="pi-toelichting"><b>Gereconstrueerde eindstand</b> (${esc(moment(it.eindstand_op))}). ${esc(it.toelichting || '')}</p>`
+    : it.volledig
     ? `<p class="pi-toelichting">Eindstand van ${esc(moment(it.eindstand_op))}.</p>`
     : '<p class="pi-toelichting">Onvolledig: geen momentopname uit deze iteratie. Alleen taken die nu nog op deze iteratie staan en niet afgerond zijn.</p>';
   const rijen = it.taken.map(t => {

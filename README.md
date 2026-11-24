@@ -26,11 +26,21 @@ De pagina staat daarna op poort 4002.
 | `app/analyse.py` | de vraag: niet afgerond per iteratie |
 | `app/app.py` | webserver, API en de planner |
 | `app/toegang.py` | het gedeelde wachtwoord en de sessie |
+| `app/reconstructie.py` | eenmalig: de eindstand van een afgelopen iteratie achteraf samenstellen |
 | `app/static/` | de pagina, met `avex-core.css` en Apache ECharts 5.6.0 |
 
 `app/static/vendor/echarts-5.6.0.min.js` is Apache ECharts (Apache-2.0), ongewijzigd overgenomen van cdnjs. SHA-512: `XSmbX3mhrD2ix5fXPTRQb2FwK22sRMVQTpBP2ac8hX7Dh/605hA2QDegVWiAvZPiXIxOV0CbkmUjGionDpbCmw==`.
 
 ## Changelog
+
+### v1.0.2 — 24 november 2026
+
+**Gereconstrueerde eindstand**
+- Nieuw script `app/reconstructie.py`: stelt achteraf de eindstand samen van een afgelopen iteratie zonder momentopname. Welke taken verschoven zijn geef je op; de status op het einde komt uit de statusgeschiedenis van GitHub. Zonder `--uitvoeren` laat het alleen zien wat het zou schrijven.
+- `pi_momentopname` heeft de kolommen `bron` (`github` of `reconstructie`) en `toelichting`; ze worden bij het opstarten vanzelf toegevoegd. Een reconstructie telt alleen als eindstand van die iteratie, niet als stand van nu en niet voor de planner. Een echte momentopname gaat voor.
+- In de grafiek staat "gereconstr." onder zo'n iteratie, met de toelichting in de tooltip en boven de takenlijst.
+- Alle iteraties krijgen een label onder de as, ook als het krap wordt.
+- WEEK 47 van bord 13 is gereconstrueerd: 14 taken zijn op 23 november naar WEEK 48 verschoven, vóór de eerste momentopname.
 
 ### v1.0.1 — 24 november 2026
 
